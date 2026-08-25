@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="Side-by-side Waymo input and output video comparisons for L, R, and U views."
+    />
+    <title>Waymo Video Comparison</title>
+    <style>
+      :root {
+        --background: #07090d;
+        --surface: #10141b;
+        --surface-raised: #151a23;
+        --line: #252d39;
+        --text: #f5f7fb;
+        --muted: #9da8b8;
+        --accent: #32e6a1;
+        --accent-soft: rgba(50, 230, 161, 0.12);
+        --output: #70a7ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        background: var(--background);
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 12% -10%, rgba(50, 230, 161, 0.1), transparent 28rem),
+          var(--background);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button,
+      video {
+        font: inherit;
+      }
+
+      .site-header {
+        border-bottom: 1px solid var(--line);
+        background: rgba(7, 9, 13, 0.88);
+        backdrop-filter: blur(18px);
+      }
+
+      .header-inner,
+      main {
+        width: min(100%, 1800px);
+        margin: 0 auto;
+      }
+
+      .header-inner {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 34px clamp(14px, 2.5vw, 44px) 28px;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--accent);
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.7rem, 6vw, 5.6rem);
+        font-weight: 760;
+        letter-spacing: -0.065em;
+        line-height: 0.86;
+      }
+
+      .section-nav {
+        display: flex;
+        gap: 8px;
+      }
+
+      .section-nav a {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        background: var(--surface);
+        color: var(--text);
+        font-size: 0.82rem;
+        font-weight: 800;
+        text-decoration: none;
+        transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+      }
+
+      .section-nav a:hover,
+      .section-nav a:focus-visible {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        color: var(--accent);
+        outline: none;
+      }
+
+      main {
+        padding: 0 clamp(10px, 2.5vw, 44px) 88px;
+      }
+
+      .view-section {
+        padding-top: 62px;
+        scroll-margin-top: 16px;
+      }
+
+      .section-heading {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+
+      .section-heading h2 {
+        margin: 0;
+        color: var(--accent);
+        font-size: clamp(2.2rem, 4vw, 4rem);
+        line-height: 1;
+        letter-spacing: -0.05em;
+      }
+
+      .section-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .comparison-list {
+        display: grid;
+        gap: clamp(26px, 4vw, 56px);
+      }
+
+      .comparison {
+        min-width: 0;
+      }
+
+      .comparison-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        min-height: 42px;
+        margin-bottom: 10px;
+      }
+
+      .sequence-info {
+        min-width: 0;
+      }
+
+      .sequence-label {
+        display: block;
+        color: var(--text);
+        font-size: 0.86rem;
+        font-weight: 760;
+      }
+
+      .scene-id {
+        display: block;
+        overflow: hidden;
+        margin-top: 3px;
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.66rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .sync-button {
+        flex: 0 0 auto;
+        min-width: 94px;
+        border: 1px solid #354152;
+        border-radius: 999px;
+        padding: 8px 13px;
+        background: var(--surface-raised);
+        color: var(--text);
+        cursor: pointer;
+        font-size: 0.72rem;
+        font-weight: 760;
+        transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+      }
+
+      .sync-button:hover,
+      .sync-button:focus-visible,
+      .sync-button.is-playing {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        color: var(--accent);
+        outline: none;
+      }
+
+      .video-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: clamp(6px, 1vw, 16px);
+      }
+
+      .video-card {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: clamp(10px, 1.4vw, 18px);
+        background: #000;
+        box-shadow: 0 16px 50px rgba(0, 0, 0, 0.2);
+      }
+
+      .video-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 36px;
+        padding: 0 12px;
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 0.69rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .video-label::before {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--accent);
+        content: "";
+      }
+
+      .video-card.output .video-label::before {
+        background: var(--output);
+      }
+
+      video {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 4 / 3;
+        background: #000;
+        object-fit: contain;
+      }
+
+      .footer {
+        margin-top: 70px;
+        padding-top: 22px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.74rem;
+      }
+
+      @media (max-width: 680px) {
+        .header-inner {
+          align-items: center;
+          padding-top: 25px;
+          padding-bottom: 21px;
+        }
+
+        .eyebrow {
+          margin-bottom: 6px;
+          font-size: 0.62rem;
+        }
+
+        .section-nav a {
+          width: 34px;
+          height: 34px;
+        }
+
+        .view-section {
+          padding-top: 44px;
+        }
+
+        .comparison-list {
+          gap: 34px;
+        }
+
+        .comparison-meta {
+          min-height: 36px;
+        }
+
+        .scene-id {
+          max-width: 52vw;
+        }
+
+        .sync-button {
+          min-width: 84px;
+          padding: 7px 10px;
+          font-size: 0.66rem;
+        }
+
+        .video-label {
+          height: 30px;
+          padding: 0 8px;
+          font-size: 0.61rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <div>
+          <p class="eyebrow">Input / Output comparison</p>
+          <h1>Waymo</h1>
+        </div>
+        <nav class="section-nav" aria-label="Video groups">
+          <a href="#l-view" aria-label="Jump to L videos">L</a>
+          <a href="#r-view" aria-label="Jump to R videos">R</a>
+          <a href="#u-view" aria-label="Jump to U videos">U</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="view-section" id="l-view" aria-labelledby="l-title">
+        <div class="section-heading">
+          <h2 id="l-title">L</h2>
+          <p>Left view · 3 sequences</p>
+        </div>
+        <div class="comparison-list">
+          <article class="comparison" data-pair>
+            <div class="comparison-meta">
+              <div class="sequence-info">
+                <span class="sequence-label">Sequence 01</span>
+                <span class="scene-id">1664548685643064400 · 2240–2260</span>
+              </div>
+              <button class="sync-button" type="button">Play both</button>
+            </div>
+            <div class="video-grid">
+              <div class="video-card input">
+                <div class="video-label">Input</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/L_input/L2M_1664548685643064400_2240_000_2260_000_input.mp4" type="video/mp4" />
+                </video>
+              </div>
+              <div class="video-card output">
+                <div class="video-label">Output</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/L_output/L2M_1664548685643064400_2240_000_2260_000_output.mp4" type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          </article>
+
+          <article class="comparison" data-pair>
+            <div class="comparison-meta">
+              <div class="sequence-info">
+                <span class="sequence-label">Sequence 02</span>
+                <span class="scene-id">3341890853207909601 · 1020–1040</span>
+              </div>
+              <button class="sync-button" type="button">Play both</button>
+            </div>
+            <div class="video-grid">
+              <div class="video-card input">
+                <div class="video-label">Input</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/L_input/L2M_3341890853207909601_1020_000_1040_000_input.mp4" type="video/mp4" />
+                </video>
+              </div>
+              <div class="video-card output">
+                <div class="video-label">Output</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/L_output/L2M_3341890853207909601_1020_000_1040_000_output.mp4" type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          </article>
+
+          <article class="comparison" data-pair>
+            <div class="comparison-meta">
+              <div class="sequence-info">
+                <span class="sequence-label">Sequence 03</span>
+                <span class="scene-id">13732041959462600641 · 720–740</span>
+              </div>
+              <button class="sync-button" type="button">Play both</button>
+            </div>
+            <div class="video-grid">
+              <div class="video-card input">
+                <div class="video-label">Input</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/L_input/L2M_13732041959462600641_720_000_740_000_input.mp4" type="video/mp4" />
+                </video>
+              </div>
+              <div class="video-card output">
+                <div class="video-label">Output</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/L_output/L2M_13732041959462600641_720_000_740_000_output.mp4" type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view-section" id="r-view" aria-labelledby="r-title">
+        <div class="section-heading">
+          <h2 id="r-title">R</h2>
+          <p>Right view · 3 sequences</p>
+        </div>
+        <div class="comparison-list">
+          <article class="comparison" data-pair>
+            <div class="comparison-meta">
+              <div class="sequence-info">
+                <span class="sequence-label">Sequence 01</span>
+                <span class="scene-id">5648007586817904385 · 3220–3240</span>
+              </div>
+              <button class="sync-button" type="button">Play both</button>
+            </div>
+            <div class="video-grid">
+              <div class="video-card input">
+                <div class="video-label">Input</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/R_input/R2M_5648007586817904385_3220_000_3240_000_input.mp4" type="video/mp4" />
+                </video>
+              </div>
+              <div class="video-card output">
+                <div class="video-label">Output</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/R_output/R2M_5648007586817904385_3220_000_3240_000_output.mp4" type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          </article>
+
+          <article class="comparison" data-pair>
+            <div class="comparison-meta">
+              <div class="sequence-info">
+                <span class="sequence-label">Sequence 02</span>
+                <span class="scene-id">2383902674438058857 · 4420–4440</span>
+              </div>
+              <button class="sync-button" type="button">Play both</button>
+            </div>
+            <div class="video-grid">
+              <div class="video-card input">
+                <div class="video-label">Input</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/R_input/R2M_2383902674438058857_4420_000_4440_000_input.mp4" type="video/mp4" />
+                </video>
+              </div>
+              <div class="video-card output">
+                <div class="video-label">Output</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/R_output/R2M_2383902674438058857_4420_000_4440_000_output.mp4" type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          </article>
+
+          <article class="comparison" data-pair>
+            <div class="comparison-meta">
+              <div class="sequence-info">
+                <span class="sequence-label">Sequence 03</span>
+                <span class="scene-id">4037952268810331899 · 2420–2440</span>
+              </div>
+              <button class="sync-button" type="button">Play both</button>
+            </div>
+            <div class="video-grid">
+              <div class="video-card input">
+                <div class="video-label">Input</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/R_input/R2M_4037952268810331899_2420_000_2440_000_input.mp4" type="video/mp4" />
+                </video>
+              </div>
+              <div class="video-card output">
+                <div class="video-label">Output</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/R_output/R2M_4037952268810331899_2420_000_2440_000_output.mp4" type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view-section" id="u-view" aria-labelledby="u-title">
+        <div class="section-heading">
+          <h2 id="u-title">U</h2>
+          <p>Up view · 3 sequences</p>
+        </div>
+        <div class="comparison-list">
+          <article class="comparison" data-pair>
+            <div class="comparison-meta">
+              <div class="sequence-info">
+                <span class="sequence-label">Sequence 01</span>
+                <span class="scene-id">3459095437766396887 · 1600–1620</span>
+              </div>
+              <button class="sync-button" type="button">Play both</button>
+            </div>
+            <div class="video-grid">
+              <div class="video-card input">
+                <div class="video-label">Input</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/U_input/U2M_3459095437766396887_1600_000_1620_000_input.mp4" type="video/mp4" />
+                </video>
+              </div>
+              <div class="video-card output">
+                <div class="video-label">Output</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/U_output/U2M_3459095437766396887_1600_000_1620_000_output.mp4" type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          </article>
+
+          <article class="comparison" data-pair>
+            <div class="comparison-meta">
+              <div class="sequence-info">
+                <span class="sequence-label">Sequence 02</span>
+                <span class="scene-id">10488772413132920574 · 680–700</span>
+              </div>
+              <button class="sync-button" type="button">Play both</button>
+            </div>
+            <div class="video-grid">
+              <div class="video-card input">
+                <div class="video-label">Input</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/U_input/U2M_10488772413132920574_680_000_700_000_input.mp4" type="video/mp4" />
+                </video>
+              </div>
+              <div class="video-card output">
+                <div class="video-label">Output</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/U_output/U2M_10488772413132920574_680_000_700_000_output.mp4" type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          </article>
+
+          <article class="comparison" data-pair>
+            <div class="comparison-meta">
+              <div class="sequence-info">
+                <span class="sequence-label">Sequence 03</span>
+                <span class="scene-id">13732041959462600641 · 720–740</span>
+              </div>
+              <button class="sync-button" type="button">Play both</button>
+            </div>
+            <div class="video-grid">
+              <div class="video-card input">
+                <div class="video-label">Input</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/U_input/U2M_13732041959462600641_720_000_740_000_input.mp4" type="video/mp4" />
+                </video>
+              </div>
+              <div class="video-card output">
+                <div class="video-label">Output</div>
+                <video controls playsinline preload="metadata">
+                  <source src="videos/U_output/U2M_13732041959462600641_720_000_740_000_output.mp4" type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <footer class="footer">9 paired comparisons · Full-frame playback · L / R / U</footer>
+    </main>
+
+    <script>
+      const pairs = [...document.querySelectorAll("[data-pair]")];
+
+      const updateButton = (pair) => {
+        const videos = [...pair.querySelectorAll("video")];
+        const button = pair.querySelector(".sync-button");
+        const isPlaying = videos.some((video) => !video.paused && !video.ended);
+        button.textContent = isPlaying ? "Pause both" : "Play both";
+        button.classList.toggle("is-playing", isPlaying);
+      };
+
+      const pauseOtherPairs = (activePair) => {
+        pairs.forEach((pair) => {
+          if (pair === activePair) return;
+          pair.querySelectorAll("video").forEach((video) => video.pause());
+          updateButton(pair);
+        });
+      };
+
+      pairs.forEach((pair) => {
+        const videos = [...pair.querySelectorAll("video")];
+        const button = pair.querySelector(".sync-button");
+        let syncing = false;
+
+        const syncTime = (source) => {
+          videos.forEach((video) => {
+            if (video !== source && Math.abs(video.currentTime - source.currentTime) > 0.12) {
+              video.currentTime = Math.min(source.currentTime, video.duration || source.currentTime);
+            }
+          });
+        };
+
+        button.addEventListener("click", async () => {
+          const shouldPlay = videos.every((video) => video.paused || video.ended);
+          if (!shouldPlay) {
+            videos.forEach((video) => video.pause());
+            updateButton(pair);
+            return;
+          }
+
+          pauseOtherPairs(pair);
+          if (videos.every((video) => video.ended)) {
+            videos.forEach((video) => { video.currentTime = 0; });
+          }
+          const anchorTime = Math.min(...videos.map((video) => video.currentTime));
+          videos.forEach((video) => { video.currentTime = anchorTime; });
+          await Promise.allSettled(videos.map((video) => video.play()));
+          updateButton(pair);
+        });
+
+        videos.forEach((video) => {
+          video.addEventListener("play", async () => {
+            if (syncing) return;
+            syncing = true;
+            pauseOtherPairs(pair);
+            syncTime(video);
+            await Promise.allSettled(
+              videos.filter((other) => other !== video && other.paused).map((other) => other.play())
+            );
+            syncing = false;
+            updateButton(pair);
+          });
+
+          video.addEventListener("pause", () => {
+            if (syncing || video.ended) {
+              updateButton(pair);
+              return;
+            }
+            syncing = true;
+            videos.filter((other) => other !== video).forEach((other) => other.pause());
+            syncing = false;
+            updateButton(pair);
+          });
+
+          video.addEventListener("seeking", () => syncTime(video));
+          video.addEventListener("ratechange", () => {
+            videos.filter((other) => other !== video).forEach((other) => {
+              other.playbackRate = video.playbackRate;
+            });
+          });
+          video.addEventListener("ended", () => updateButton(pair));
+        });
+      });
+    </script>
+  </body>
+</html>

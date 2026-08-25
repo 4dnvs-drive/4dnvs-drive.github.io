@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="Choose the Waymo or nuScenes input and output video comparison."
+    />
+    <title>Ours Video Selector</title>
+    <style>
+      :root {
+        --background: #07090d;
+        --surface: #11161e;
+        --line: #27303d;
+        --text: #f5f7fb;
+        --muted: #9ca7b7;
+        --waymo: #32e6a1;
+        --nuscenes: #ff9a62;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        display: grid;
+        margin: 0;
+        place-items: center;
+        overflow-x: hidden;
+        background:
+          radial-gradient(circle at 10% 8%, rgba(50, 230, 161, 0.12), transparent 30rem),
+          radial-gradient(circle at 90% 90%, rgba(255, 154, 98, 0.12), transparent 30rem),
+          var(--background);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      main {
+        width: min(100%, 1040px);
+        padding: clamp(32px, 7vw, 80px) clamp(18px, 5vw, 52px);
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(3.7rem, 12vw, 8.6rem);
+        font-weight: 760;
+        letter-spacing: -0.075em;
+        line-height: 0.86;
+      }
+
+      .intro {
+        max-width: 580px;
+        margin: 24px 0 0;
+        color: var(--muted);
+        font-size: clamp(0.95rem, 2vw, 1.1rem);
+        line-height: 1.65;
+      }
+
+      .dataset-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: clamp(12px, 2vw, 20px);
+        margin-top: clamp(38px, 7vw, 70px);
+      }
+
+      .dataset-link {
+        display: flex;
+        min-height: clamp(150px, 22vw, 218px);
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+        border: 1px solid var(--line);
+        border-radius: clamp(18px, 3vw, 30px);
+        padding: clamp(22px, 4vw, 38px);
+        background: rgba(17, 22, 30, 0.88);
+        color: var(--text);
+        font-size: clamp(1.35rem, 3.1vw, 2.35rem);
+        font-weight: 760;
+        letter-spacing: -0.035em;
+        text-decoration: none;
+        box-shadow: 0 20px 70px rgba(0, 0, 0, 0.2);
+        transition:
+          border-color 180ms ease,
+          background 180ms ease,
+          color 180ms ease,
+          transform 180ms ease;
+      }
+
+      .dataset-link .arrow {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 auto;
+        place-items: center;
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        font-size: 1rem;
+      }
+
+      .dataset-link.waymo:hover,
+      .dataset-link.waymo:focus-visible {
+        border-color: var(--waymo);
+        background: rgba(50, 230, 161, 0.1);
+        color: var(--waymo);
+      }
+
+      .dataset-link.nuscenes:hover,
+      .dataset-link.nuscenes:focus-visible {
+        border-color: var(--nuscenes);
+        background: rgba(255, 154, 98, 0.1);
+        color: var(--nuscenes);
+      }
+
+      .dataset-link:hover,
+      .dataset-link:focus-visible {
+        outline: none;
+        transform: translateY(-3px);
+      }
+
+      .footer {
+        margin-top: 24px;
+        color: #687486;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      @media (max-width: 650px) {
+        .dataset-links {
+          grid-template-columns: 1fr;
+        }
+
+        .dataset-link {
+          min-height: 132px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Input / Output comparison</p>
+      <h1>Ours</h1>
+      <p class="intro">Choose a dataset to open its L, R, and U video comparisons.</p>
+
+      <nav class="dataset-links" aria-label="Choose a dataset">
+        <a class="dataset-link waymo" href="waymo/index.html">
+          <span>Ours Waymo</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+        <a class="dataset-link nuscenes" href="nuscenes/index.html">
+          <span>Ours Nuscenes</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+      </nav>
+
+      <div class="footer">Waymo · nuScenes</div>
+    </main>
+  </body>
+</html>
