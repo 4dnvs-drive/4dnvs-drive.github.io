@@ -4,30 +4,21 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />
-    <meta
-      name="description"
-      content="Choose the Waymo or nuScenes input and output video comparison."
-    />
-    <title>Ours Video Selector</title>
+    <meta name="description" content="Explore synchronized 1-meter and 2-meter novel-view video comparisons on Waymo and nuScenes." />
+    <title>4D NVS Drive · Video Comparisons</title>
     <style>
       :root {
         --background: #07090d;
         --surface: #11161e;
-        --line: #27303d;
+        --line: #293240;
         --text: #f5f7fb;
         --muted: #9ca7b7;
         --waymo: #32e6a1;
         --nuscenes: #ff9a62;
       }
 
-      * {
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        min-height: 100%;
-      }
+      * { box-sizing: border-box; }
+      html, body { min-height: 100%; }
 
       body {
         display: grid;
@@ -35,8 +26,8 @@
         place-items: center;
         overflow-x: hidden;
         background:
-          radial-gradient(circle at 10% 8%, rgba(50, 230, 161, 0.12), transparent 30rem),
-          radial-gradient(circle at 90% 90%, rgba(255, 154, 98, 0.12), transparent 30rem),
+          radial-gradient(circle at 8% 5%, rgba(50, 230, 161, 0.12), transparent 31rem),
+          radial-gradient(circle at 92% 95%, rgba(255, 154, 98, 0.12), transparent 31rem),
           var(--background);
         color: var(--text);
         font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -44,32 +35,33 @@
       }
 
       main {
-        width: min(100%, 1040px);
-        padding: clamp(32px, 7vw, 80px) clamp(18px, 5vw, 52px);
+        width: min(100%, 1100px);
+        padding: clamp(34px, 7vw, 82px) clamp(18px, 5vw, 54px);
       }
 
       .eyebrow {
         margin: 0 0 12px;
         color: var(--muted);
-        font-size: 0.72rem;
-        font-weight: 800;
+        font-size: 0.7rem;
+        font-weight: 820;
         letter-spacing: 0.2em;
         text-transform: uppercase;
       }
 
       h1 {
+        max-width: 760px;
         margin: 0;
-        font-size: clamp(3.7rem, 12vw, 8.6rem);
-        font-weight: 760;
+        font-size: clamp(3.5rem, 10vw, 8.2rem);
+        font-weight: 770;
         letter-spacing: -0.075em;
-        line-height: 0.86;
+        line-height: 0.87;
       }
 
       .intro {
-        max-width: 580px;
-        margin: 24px 0 0;
+        max-width: 620px;
+        margin: 25px 0 0;
         color: var(--muted);
-        font-size: clamp(0.95rem, 2vw, 1.1rem);
+        font-size: clamp(0.95rem, 2vw, 1.08rem);
         line-height: 1.65;
       }
 
@@ -77,55 +69,84 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: clamp(12px, 2vw, 20px);
-        margin-top: clamp(38px, 7vw, 70px);
+        margin-top: clamp(40px, 7vw, 72px);
       }
 
       .dataset-link {
         display: flex;
-        min-height: clamp(150px, 22vw, 218px);
-        align-items: flex-end;
+        min-height: clamp(210px, 28vw, 286px);
+        flex-direction: column;
         justify-content: space-between;
-        gap: 20px;
+        gap: 28px;
         border: 1px solid var(--line);
         border-radius: clamp(18px, 3vw, 30px);
-        padding: clamp(22px, 4vw, 38px);
-        background: rgba(17, 22, 30, 0.88);
+        padding: clamp(23px, 4vw, 38px);
+        background: rgba(17, 22, 30, 0.9);
         color: var(--text);
-        font-size: clamp(1.35rem, 3.1vw, 2.35rem);
-        font-weight: 760;
-        letter-spacing: -0.035em;
         text-decoration: none;
         box-shadow: 0 20px 70px rgba(0, 0, 0, 0.2);
-        transition:
-          border-color 180ms ease,
-          background 180ms ease,
-          color 180ms ease,
-          transform 180ms ease;
+        transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
       }
 
-      .dataset-link .arrow {
+      .card-top,
+      .card-bottom,
+      .distance-stats {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .card-index {
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.68rem;
+      }
+
+      .arrow {
         display: grid;
         width: 42px;
         height: 42px;
-        flex: 0 0 auto;
         place-items: center;
         border: 1px solid currentColor;
         border-radius: 50%;
         font-size: 1rem;
       }
 
+      .dataset-name {
+        margin: 0;
+        font-size: clamp(2rem, 4.2vw, 3.5rem);
+        font-weight: 770;
+        letter-spacing: -0.055em;
+      }
+
+      .distance-stats { justify-content: flex-start; }
+
+      .stat {
+        min-width: 88px;
+        border-left: 1px solid var(--line);
+        padding-left: 13px;
+        color: var(--muted);
+        font-size: 0.67rem;
+        line-height: 1.35;
+      }
+
+      .stat strong {
+        display: block;
+        color: var(--text);
+        font-size: 0.94rem;
+      }
+
       .dataset-link.waymo:hover,
       .dataset-link.waymo:focus-visible {
         border-color: var(--waymo);
-        background: rgba(50, 230, 161, 0.1);
-        color: var(--waymo);
+        background: rgba(50, 230, 161, 0.09);
       }
 
       .dataset-link.nuscenes:hover,
       .dataset-link.nuscenes:focus-visible {
         border-color: var(--nuscenes);
-        background: rgba(255, 154, 98, 0.1);
-        color: var(--nuscenes);
+        background: rgba(255, 154, 98, 0.09);
       }
 
       .dataset-link:hover,
@@ -135,49 +156,54 @@
       }
 
       .footer {
-        margin-top: 24px;
+        margin-top: 25px;
         color: #687486;
-        font-size: 0.68rem;
-        font-weight: 700;
-        letter-spacing: 0.14em;
+        font-size: 0.67rem;
+        font-weight: 720;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
       }
 
       @media (max-width: 650px) {
-        .dataset-links {
-          grid-template-columns: 1fr;
-        }
-
-        .dataset-link {
-          min-height: 132px;
-        }
+        .dataset-links { grid-template-columns: 1fr; }
+        .dataset-link { min-height: 190px; }
       }
 
       @media (prefers-reduced-motion: reduce) {
-        * {
-          transition: none !important;
-        }
+        * { transition: none !important; }
       }
     </style>
   </head>
   <body>
     <main>
-      <p class="eyebrow">Input / Output comparison</p>
-      <h1>Ours</h1>
-      <p class="intro">Choose a dataset to open its L, R, and U video comparisons.</p>
+      <p class="eyebrow">4D NVS · Input / Output comparison</p>
+      <h1>Viewpoint comparisons</h1>
+      <p class="intro">Explore synchronized driving videos at 1-meter and 2-meter camera displacements. Choose a dataset, then switch between L, R, and U camera paths.</p>
 
       <nav class="dataset-links" aria-label="Choose a dataset">
-        <a class="dataset-link waymo" href="waymo/index.html">
-          <span>Ours Waymo</span>
-          <span class="arrow" aria-hidden="true">→</span>
+        <a class="dataset-link waymo" href="waymo/index.html?distance=1m">
+          <div class="card-top"><span class="card-index">01 / Waymo</span><span class="arrow" aria-hidden="true">→</span></div>
+          <div class="card-bottom">
+            <h2 class="dataset-name">Waymo</h2>
+            <div class="distance-stats" aria-label="Waymo comparison counts">
+              <span class="stat"><strong>1M</strong>10 pairs</span>
+              <span class="stat"><strong>2M</strong>9 pairs</span>
+            </div>
+          </div>
         </a>
-        <a class="dataset-link nuscenes" href="nuscenes/index.html">
-          <span>Ours Nuscenes</span>
-          <span class="arrow" aria-hidden="true">→</span>
+        <a class="dataset-link nuscenes" href="nuscenes/index.html?distance=1m">
+          <div class="card-top"><span class="card-index">02 / nuScenes</span><span class="arrow" aria-hidden="true">→</span></div>
+          <div class="card-bottom">
+            <h2 class="dataset-name">nuScenes</h2>
+            <div class="distance-stats" aria-label="nuScenes comparison counts">
+              <span class="stat"><strong>1M</strong>9 pairs</span>
+              <span class="stat"><strong>2M</strong>10 pairs</span>
+            </div>
+          </div>
         </a>
       </nav>
 
-      <div class="footer">Waymo · nuScenes</div>
+      <div class="footer">38 paired comparisons · Waymo + nuScenes · 1M + 2M</div>
     </main>
   </body>
 </html>
