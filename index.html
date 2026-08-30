@@ -4,206 +4,420 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />
-    <meta name="description" content="Explore synchronized 1-meter and 2-meter novel-view video comparisons on Waymo and nuScenes." />
-    <title>4D NVS Drive · Video Comparisons</title>
+    <meta name="description" content="Efficient generative 4D novel view synthesis for driving scenes from monocular videos, with Waymo and nuScenes comparisons." />
+    <title>Efficient Generative 4D Novel View Synthesis for Driving Scenes from Monocular Videos</title>
     <style>
       :root {
         --background: #07090d;
         --surface: #11161e;
         --line: #293240;
+        --line-soft: rgba(255,255,255,.09);
         --text: #f5f7fb;
         --muted: #9ca7b7;
         --waymo: #32e6a1;
         --nuscenes: #ff9a62;
       }
-
       * { box-sizing: border-box; }
-      html, body { min-height: 100%; }
-
+      html { scroll-behavior: smooth; background: var(--background); }
       body {
-        display: grid;
+        min-height: 100vh;
         margin: 0;
-        place-items: center;
         overflow-x: hidden;
-        background:
-          radial-gradient(circle at 8% 5%, rgba(50, 230, 161, 0.12), transparent 31rem),
-          radial-gradient(circle at 92% 95%, rgba(255, 154, 98, 0.12), transparent 31rem),
-          var(--background);
+        background: var(--background);
         color: var(--text);
         font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         -webkit-font-smoothing: antialiased;
       }
-
-      main {
-        width: min(100%, 1100px);
-        padding: clamp(34px, 7vw, 82px) clamp(18px, 5vw, 54px);
+      a { color: inherit; }
+      .shell { width: min(calc(100% - 40px), 1180px); margin-inline: auto; }
+      .site-header {
+        display: flex;
+        min-height: 84px;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line-soft);
       }
-
-      .eyebrow {
-        margin: 0 0 12px;
+      .wordmark {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+        font-size: .77rem;
+        font-weight: 760;
+        letter-spacing: .04em;
+        text-decoration: none;
+      }
+      .wordmark-mark {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border: 1px solid rgba(50,230,161,.55);
+        border-radius: 50%;
+        color: var(--waymo);
+        font: .65rem ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .top-nav { display: flex; gap: 28px; }
+      .top-nav a {
         color: var(--muted);
-        font-size: 0.7rem;
-        font-weight: 820;
-        letter-spacing: 0.2em;
+        font-size: .72rem;
+        font-weight: 680;
+        letter-spacing: .08em;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: color 160ms ease;
+      }
+      .top-nav a:hover, .top-nav a:focus-visible { color: var(--text); }
+      .hero {
+        position: relative;
+        padding-block: clamp(76px,11vw,148px) clamp(88px,12vw,154px);
+      }
+      .hero::before {
+        position: absolute;
+        z-index: 0;
+        top: 13%;
+        right: -13%;
+        width: min(55vw,670px);
+        aspect-ratio: 1;
+        border: 1px solid rgba(50,230,161,.08);
+        border-radius: 50%;
+        box-shadow: 0 0 0 72px rgba(50,230,161,.025), 0 0 0 144px rgba(255,154,98,.018);
+        content: "";
+        pointer-events: none;
+      }
+      .hero > * { position: relative; z-index: 1; }
+      .hero-kicker, .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        color: var(--muted);
+        font-size: .68rem;
+        font-weight: 800;
+        letter-spacing: .18em;
         text-transform: uppercase;
       }
-
-      h1 {
-        max-width: 760px;
+      .hero h1 {
+        max-width: 1080px;
+        margin: 28px 0 0;
+        font-size: clamp(3rem,6.8vw,6.3rem);
+        font-weight: 750;
+        letter-spacing: -.068em;
+        line-height: .93;
+        text-wrap: balance;
+      }
+      .hero h1 span { color: #7f8a9a; }
+      .project-meta {
+        display: grid;
+        grid-template-columns: 100%;
+        row-gap: 1.6rem;
+        margin-top: clamp(48px,7vw,78px);
+        padding-top: 1.7rem;
+        border-top: 1px solid var(--line);
+      }
+      .author-list {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 3%;
+        width: 100%;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .author-list::-webkit-scrollbar { display: none; }
+      .author {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: flex-start;
+        font-size: clamp(1.22rem,2vw,1.48rem);
+        font-weight: 650;
+        white-space: nowrap;
+      }
+      sup {
+        margin-left: 4px;
+        color: var(--waymo);
+        font: .58em ui-monospace, SFMono-Regular, Menlo, monospace;
+        line-height: 1.2;
+      }
+      .affiliation-list { color: var(--muted); font-size: 1.34rem; line-height: 1.55; }
+      .affiliation-list p { margin: 0 0 5px; }
+      .affiliation-list sup { display: inline-block; width: 14px; margin: 0; font-size: .72em; }
+      .author-note { grid-column: 1/-1; margin: 0; color: #707d8e; font-size: 1.00rem; }
+      .note-mark { margin-right: 8px; color: var(--nuscenes); }
+      .teaser-section { padding-bottom: clamp(96px,12vw,150px); }
+      .section-heading {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        align-items: end;
+        gap: 36px;
+        margin-bottom: 31px;
+      }
+      .section-heading h2, .comparison-copy h2 {
         margin: 0;
-        font-size: clamp(3.5rem, 10vw, 8.2rem);
-        font-weight: 770;
-        letter-spacing: -0.075em;
-        line-height: 0.87;
+        font-size: clamp(2rem,4.4vw,4.3rem);
+        font-weight: 735;
+        letter-spacing: -.055em;
+        line-height: .98;
       }
-
-      .intro {
-        max-width: 620px;
-        margin: 25px 0 0;
+      .video-placeholder {
+        position: relative;
+        display: flex;
+        min-height: 320px;
+        aspect-ratio: 4/3;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: clamp(18px,3vw,32px);
+        padding: clamp(21px,3vw,34px);
+        background:
+          linear-gradient(var(--line-soft) 1px,transparent 1px),
+          linear-gradient(90deg,var(--line-soft) 1px,transparent 1px),
+          radial-gradient(circle at 20% 0%,rgba(50,230,161,.12),transparent 42%),
+          radial-gradient(circle at 100% 100%,rgba(255,154,98,.1),transparent 45%),
+          #0c1118;
+        background-size: 54px 54px,54px 54px,auto,auto,auto;
+        box-shadow: 0 35px 110px rgba(0,0,0,.28);
+      }
+      .video-placeholder::after {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(115deg,transparent 30%,rgba(255,255,255,.035),transparent 66%);
+        content: "";
+        pointer-events: none;
+      }
+      .video-topline, .video-footer {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #788598;
+        font: .64rem ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+      }
+      .video-center { position: relative; z-index: 1; display: flex; align-items: center; align-self: center; gap: 19px; }
+      .play-mark {
+        display: grid;
+        width: clamp(56px,7vw,78px);
+        height: clamp(56px,7vw,78px);
+        place-items: center;
+        border: 1px solid rgba(245,247,251,.28);
+        border-radius: 50%;
+        padding-left: 4px;
+        font-size: .8rem;
+      }
+      .video-center div { display: flex; flex-direction: column; gap: 5px; }
+      .video-center strong { font-size: clamp(1.05rem,2vw,1.35rem); font-weight: 670; }
+      .video-center div span { color: var(--muted); font-size: .79rem; }
+      .video-footer { gap: 16px; }
+      .video-progress { display: block; width: 100%; height: 2px; background: rgba(255,255,255,.13); }
+      .video-progress i { display: block; width: 9%; height: 100%; background: var(--waymo); }
+      .teaser-video {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4/3;
+        border: 1px solid var(--line);
+        border-radius: clamp(18px,3vw,32px);
+        background: #0c1118;
+        object-fit: contain;
+        box-shadow: 0 35px 110px rgba(0,0,0,.28);
+      }
+      .method-section { padding-bottom: clamp(96px,12vw,150px); }
+      .method-figure {
+        margin: 0;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: clamp(18px,3vw,32px);
+        background: #f5f7fb;
+        box-shadow: 0 35px 110px rgba(0,0,0,.22);
+      }
+      .method-image {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+      }
+      .method-description {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 36px;
+        margin-top: 28px;
+      }
+      .method-description p {
+        grid-column: 2;
+        max-width: 720px;
+        margin: 0;
         color: var(--muted);
-        font-size: clamp(0.95rem, 2vw, 1.08rem);
-        line-height: 1.65;
+        font-size: clamp(.93rem,1.6vw,1.04rem);
+        line-height: 1.72;
       }
-
+      .comparisons {
+        position: relative;
+        overflow: hidden;
+        border-block: 1px solid var(--line-soft);
+        background:
+          radial-gradient(circle at 0% 0%,rgba(50,230,161,.1),transparent 34rem),
+          radial-gradient(circle at 100% 100%,rgba(255,154,98,.1),transparent 34rem),
+          #090c11;
+      }
+      .comparison-inner { position: relative; padding-block: clamp(90px,12vw,144px); }
+      .comparison-copy { display: grid; grid-template-columns: 1fr 2fr; gap: 36px; align-items: start; }
+      .comparison-copy .eyebrow { padding-top: 9px; }
+      .comparison-copy h2 { grid-column: 2; }
+      .comparison-copy > p:last-child {
+        grid-column: 2;
+        max-width: 640px;
+        margin: 23px 0 0;
+        color: var(--muted);
+        font-size: clamp(.93rem,1.6vw,1.04rem);
+        line-height: 1.72;
+      }
       .dataset-links {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: clamp(12px, 2vw, 20px);
-        margin-top: clamp(40px, 7vw, 72px);
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        gap: clamp(14px,2vw,21px);
+        margin-top: clamp(48px,7vw,76px);
       }
-
       .dataset-link {
         display: flex;
-        min-height: clamp(210px, 28vw, 286px);
+        min-height: clamp(230px,29vw,316px);
         flex-direction: column;
         justify-content: space-between;
         gap: 28px;
         border: 1px solid var(--line);
-        border-radius: clamp(18px, 3vw, 30px);
-        padding: clamp(23px, 4vw, 38px);
-        background: rgba(17, 22, 30, 0.9);
-        color: var(--text);
+        border-radius: clamp(18px,3vw,30px);
+        padding: clamp(24px,3.6vw,39px);
+        background: rgba(17,22,30,.89);
         text-decoration: none;
-        box-shadow: 0 20px 70px rgba(0, 0, 0, 0.2);
-        transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+        box-shadow: 0 20px 70px rgba(0,0,0,.2);
+        transition: border-color 180ms ease,background 180ms ease,transform 180ms ease;
       }
-
-      .card-top,
-      .card-bottom,
-      .distance-stats {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-      }
-
-      .card-index {
-        color: var(--muted);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 0.68rem;
-      }
-
+      .card-top, .card-bottom, .distance-stats { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+      .card-index { color: var(--muted); font: .68rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
       .arrow {
         display: grid;
-        width: 42px;
-        height: 42px;
+        width: 44px;
+        height: 44px;
+        flex: 0 0 auto;
         place-items: center;
         border: 1px solid currentColor;
         border-radius: 50%;
-        font-size: 1rem;
+        font-size: .95rem;
+        transition: transform 180ms ease;
       }
-
-      .dataset-name {
-        margin: 0;
-        font-size: clamp(2rem, 4.2vw, 3.5rem);
-        font-weight: 770;
-        letter-spacing: -0.055em;
-      }
-
+      .card-bottom h3 { margin: 0; font-size: clamp(2.2rem,4.5vw,3.8rem); font-weight: 755; letter-spacing: -.06em; }
       .distance-stats { justify-content: flex-start; }
-
-      .stat {
-        min-width: 88px;
-        border-left: 1px solid var(--line);
-        padding-left: 13px;
-        color: var(--muted);
-        font-size: 0.67rem;
-        line-height: 1.35;
-      }
-
-      .stat strong {
-        display: block;
-        color: var(--text);
-        font-size: 0.94rem;
-      }
-
-      .dataset-link.waymo:hover,
-      .dataset-link.waymo:focus-visible {
-        border-color: var(--waymo);
-        background: rgba(50, 230, 161, 0.09);
-      }
-
-      .dataset-link.nuscenes:hover,
-      .dataset-link.nuscenes:focus-visible {
-        border-color: var(--nuscenes);
-        background: rgba(255, 154, 98, 0.09);
-      }
-
-      .dataset-link:hover,
-      .dataset-link:focus-visible {
-        outline: none;
-        transform: translateY(-3px);
-      }
-
-      .footer {
-        margin-top: 25px;
-        color: #687486;
-        font-size: 0.67rem;
-        font-weight: 720;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-      }
-
-      @media (max-width: 650px) {
+      .stat { min-width: 88px; border-left: 1px solid var(--line); padding-left: 13px; color: var(--muted); font-size: .67rem; line-height: 1.35; }
+      .stat strong { display: block; color: var(--text); font-size: .94rem; }
+      .dataset-link.waymo:hover, .dataset-link.waymo:focus-visible { border-color: var(--waymo); background: rgba(50,230,161,.09); }
+      .dataset-link.nuscenes:hover, .dataset-link.nuscenes:focus-visible { border-color: var(--nuscenes); background: rgba(255,154,98,.09); }
+      .dataset-link:hover, .dataset-link:focus-visible { outline: none; transform: translateY(-3px); }
+      .dataset-link:hover .arrow, .dataset-link:focus-visible .arrow { transform: rotate(45deg); }
+      .comparison-footer { display: flex; flex-wrap: wrap; gap: 12px 25px; margin-top: 27px; color: #657184; font-size: .67rem; font-weight: 720; letter-spacing: .11em; text-transform: uppercase; }
+      .comparison-footer span:not(:last-child)::after { margin-left: 25px; color: #354051; content: "·"; }
+      .site-footer { display: flex; min-height: 150px; align-items: center; justify-content: space-between; gap: 30px; color: #697588; font-size: .7rem; letter-spacing: .06em; }
+      .site-footer span:first-child { color: var(--text); font-weight: 720; text-transform: uppercase; }
+      @media (max-width: 780px) {
+        .project-meta, .section-heading, .method-description, .comparison-copy { grid-template-columns: 1fr; }
+        .author-list { gap: 2.5%; }
+        .author { font-size: clamp(.72rem,3vw,1rem); }
+        .method-description p { grid-column: 1; }
+        .comparison-copy h2, .comparison-copy > p:last-child { grid-column: 1; }
         .dataset-links { grid-template-columns: 1fr; }
-        .dataset-link { min-height: 190px; }
+        .dataset-link { min-height: 220px; }
       }
-
+      @media (max-width: 540px) {
+        .shell { width: min(calc(100% - 28px),1180px); }
+        .site-header { min-height: 70px; }
+        .top-nav { gap: 15px; }
+        .top-nav a { font-size: .61rem; }
+        .hero { padding-top: 62px; }
+        .hero h1 { font-size: clamp(2.75rem,13vw,4.1rem); }
+        .hero-kicker span:nth-child(2), .hero-kicker span:nth-child(3) { display: none; }
+        .teaser-video { aspect-ratio: 4/3; }
+        .video-center { align-self: flex-start; }
+        .video-center div span { max-width: 190px; }
+        .card-bottom { align-items: flex-end; }
+        .distance-stats { gap: 7px; }
+        .stat { min-width: 67px; }
+        .comparison-footer span::after { display: none; }
+        .site-footer { min-height: 130px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 9px; }
+      }
       @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
         * { transition: none !important; }
       }
     </style>
   </head>
   <body>
     <main>
-      <p class="eyebrow">4D NVS · Input / Output comparison</p>
-      <h1>Viewpoint comparisons</h1>
-      <p class="intro">Explore synchronized driving videos at 1-meter and 2-meter camera displacements. Choose a dataset, then switch between L, R, and U camera paths.</p>
+      <header class="site-header shell">
+        <a class="wordmark" href="#top" aria-label="4D NVS Drive home"><span class="wordmark-mark" aria-hidden="true">4D</span><span>NVS Drive</span></a>
+        <nav class="top-nav" aria-label="Page navigation"><a href="#teaser">Teaser</a><a href="#method">Method</a><a href="#comparisons">Comparisons</a></nav>
+      </header>
 
-      <nav class="dataset-links" aria-label="Choose a dataset">
-        <a class="dataset-link waymo" href="waymo/index.html?distance=1m">
-          <div class="card-top"><span class="card-index">01 / Waymo</span><span class="arrow" aria-hidden="true">→</span></div>
-          <div class="card-bottom">
-            <h2 class="dataset-name">Waymo</h2>
-            <div class="distance-stats" aria-label="Waymo comparison counts">
-              <span class="stat"><strong>1M</strong>10 pairs</span>
-              <span class="stat"><strong>2M</strong>9 pairs</span>
-            </div>
+      <section class="hero shell" id="top">
+        <h1>Efficient Generative 4D Novel View Synthesis<span> for Driving Scenes from Monocular Videos</span></h1>
+        <div class="project-meta">
+          <div class="author-list" aria-label="Authors">
+            <div class="author"><span>Phuc Nguyen</span><sup>1,2</sup></div>
+            <div class="author"><span>Samin Khan</span><sup>2</sup></div>
+            <div class="author"><span>Ming C. Lin</span><sup>1</sup></div>
+            <div class="author"><span>Sudipta N. Sinha</span><sup>2</sup></div>
           </div>
-        </a>
-        <a class="dataset-link nuscenes" href="nuscenes/index.html?distance=1m">
-          <div class="card-top"><span class="card-index">02 / nuScenes</span><span class="arrow" aria-hidden="true">→</span></div>
-          <div class="card-bottom">
-            <h2 class="dataset-name">nuScenes</h2>
-            <div class="distance-stats" aria-label="nuScenes comparison counts">
-              <span class="stat"><strong>1M</strong>9 pairs</span>
-              <span class="stat"><strong>2M</strong>10 pairs</span>
-            </div>
+          <br></br>
+          <div class="affiliation-list">
+            <p><sup>1</sup> University of Maryland, College Park</p>
+            <p><sup>2</sup> Stack AV</p>
           </div>
-        </a>
-      </nav>
+          <p class="author-note"><span class="note-mark" aria-hidden="true">↳</span>Phuc Nguyen: work done during an internship at Stack AV.</p>
+        </div>
+      </section>
 
-      <div class="footer">38 paired comparisons · Waymo + nuScenes · 1M + 2M</div>
+      <section class="teaser-section shell" id="teaser" aria-labelledby="teaser-title">
+        <div class="section-heading"><p class="eyebrow">01 / Teaser</p><h2 id="teaser-title"></h2></div>
+        <video class="teaser-video" controls autoplay muted loop playsinline preload="metadata" aria-label="Project teaser video">
+          <source src="assets/4dnvs-teaser.mp4" type="video/mp4" />
+          Your browser does not support the video element.
+        </video>
+      </section>
+
+      <section class="method-section shell" id="method" aria-labelledby="method-title">
+        <div class="section-heading">
+          <p class="eyebrow">02 / Method</p>
+          <h2 id="method-title">Method overview</h2>
+        </div>
+        <figure class="method-figure">
+          <img class="method-image" src="assets/method.png" alt="Overview of the proposed 4D novel view synthesis method" />
+        </figure>
+        <div class="method-description">
+          <!-- <p><strong>Method description placeholder.</strong> Briefly describe the monocular-video input, the intermediate 4D scene representation, the generative rendering pipeline, and how the final novel views are synthesized along displaced camera trajectories.</p> -->
+        </div>
+      </section>
+
+      <section class="comparisons" id="comparisons" aria-labelledby="comparison-title">
+        <div class="shell comparison-inner">
+          <div class="comparison-copy">
+            <p class="eyebrow">03 / Qualitative Results</p>
+            <h2 id="comparison-title">Novel view synthesis</h2>
+            <p>Explore synchronized driving videos at 1-meter and 2-meter camera displacements. Choose a dataset, then switch between L, R, and U camera paths.</p>
+          </div>
+          <nav class="dataset-links" aria-label="Choose a dataset">
+            <a class="dataset-link waymo" href="waymo/index.html?distance=1m">
+              <div class="card-top"><span class="card-index">01 / Waymo</span><span class="arrow" aria-hidden="true">↗</span></div>
+              <div class="card-bottom"><h3>Waymo</h3><div class="distance-stats" aria-label="Waymo comparison counts"><span class="stat"><strong>1M</strong>10 pairs</span><span class="stat"><strong>2M</strong>9 pairs</span></div></div>
+            </a>
+            <a class="dataset-link nuscenes" href="nuscenes/index.html?distance=1m">
+              <div class="card-top"><span class="card-index">02 / nuScenes</span><span class="arrow" aria-hidden="true">↗</span></div>
+              <div class="card-bottom"><h3>nuScenes</h3><div class="distance-stats" aria-label="nuScenes comparison counts"><span class="stat"><strong>1M</strong>9 pairs</span><span class="stat"><strong>2M</strong>10 pairs</span></div></div>
+            </a>
+          </nav>
+          <div class="comparison-footer"><span>38 paired comparisons</span><span>Waymo + nuScenes</span><span>1M + 2M</span></div>
+        </div>
+      </section>
+
+      <footer class="site-footer shell"><span>4D NVS Drive</span><span>Efficient novel-view synthesis for dynamic driving scenes.</span></footer>
     </main>
   </body>
 </html>
