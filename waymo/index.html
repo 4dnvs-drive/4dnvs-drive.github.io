@@ -2,680 +2,730 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080f17">
-  <title>Waymo Results — DrivENVS</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080f17">
+<title>Waymo Results — DrivENVS</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      --bg: #080f17;
-      --surface: #0e1924;
-      --line: #2b3b4a;
-      --text: #edf4f8;
-      --muted: #9bafbf;
-      --accent: #2e95ca;
-      --brand: linear-gradient(90deg, #5de0e6, #004aad);
-    }
+<style>
+:root {
+  --bg: #080f17;
+  --surface: #0e1924;
+  --line: #2b3b4a;
+  --text: #edf4f8;
+  --muted: #9bafbf;
+  --accent: #2e95ca;
+  --brand: linear-gradient(90deg, #5de0e6, #004aad);
+}
 
-    * { box-sizing: border-box; }
+* { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: "DM Sans", Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "DM Sans", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
 
-    button {
-      font: inherit;
-      cursor: pointer;
-    }
+.container {
+  width: min(1200px, calc(100% - 64px));
+  margin: auto;
+}
 
-    .container {
-      width: min(1200px, calc(100% - 64px));
-      margin: auto;
-    }
+/* BRAND */
 
-    /* MINIMAL HEADER */
+.wordmark,
+.brand-inline {
+  display: inline-block;
+  font-family: Anton, Impact, sans-serif;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: .012em;
+  background: var(--brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
 
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px;
-      padding: 27px 0;
-      border-bottom: 1px solid var(--line);
-    }
+.wordmark {
+  font-size: 1.85rem;
+}
 
-    .wordmark {
-      font: 1.85rem/1 Anton, Impact, sans-serif;
-      background: var(--brand);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-    }
+.brand-inline {
+  font-size: 1.12em;
+  white-space: nowrap;
+}
 
-    .switch {
-      font-size: .85rem;
-      color: var(--muted);
-    }
+/* HEADER */
 
-    .switch:hover {
-      color: var(--accent);
-    }
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 27px 0;
+  border-bottom: 1px solid var(--line);
+}
 
-    /* TITLE */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--muted);
+}
 
-    .intro {
-      padding: 66px 0 42px;
-    }
+.switch:hover {
+  color: var(--accent);
+}
 
-    .intro h1 {
-      font-size: clamp(3.8rem, 8vw, 7rem);
-      font-weight: 500;
-      line-height: 1;
-      letter-spacing: -.07em;
-      margin: 0 0 13px;
-    }
+.switch-arrow {
+  display: block;
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
-    .intro p {
-      color: var(--muted);
-      font-size: 1.02rem;
-      line-height: 1.6;
-      margin: 0;
-    }
+/* INTRO */
 
-    /* FILTERS */
+.intro {
+  padding: 66px 0 42px;
+}
 
-    .filters {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 24px;
-      padding: 20px 0;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-    }
+.intro h1 {
+  font-size: clamp(3.8rem, 8vw, 7rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.07em;
+  margin: 0 0 13px;
+}
 
-    .filter-group {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 7px;
-    }
+.intro p {
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.6;
+  margin: 0;
+}
 
-    .filter-name {
-      color: var(--muted);
-      font-size: .85rem;
-      margin-right: 10px;
-    }
+/* FILTERS — MINIMAL OUTLINE STYLE A */
 
-    .filter-btn {
-      background: transparent;
-      border: 1px solid #364b5d;
-      color: #bbccd8;
-      padding: 9px 15px;
-      font-size: .84rem;
-      transition: border-color .18s, background .18s;
-    }
+.filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 26px;
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
 
-    .filter-btn:hover {
-      border-color: var(--accent);
-    }
+.filter-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 
-    .filter-btn[aria-pressed="true"] {
-      background: #17364b;
-      border-color: var(--accent);
-      color: #e4f0f6;
-    }
+.filter-name {
+  color: #dce7ee;
+  font-size: .96rem;
+  font-weight: 700;
+  margin-right: 10px;
+}
 
-    .count {
-      color: var(--muted);
-      font-size: .8rem;
-      margin-left: auto;
-      white-space: nowrap;
-    }
+.filter-btn {
+  min-height: 40px;
+  padding: 9px 15px;
+  border-radius: 7px;
+  border: 1px solid #354856;
+  background: transparent;
+  color: #c2d0d9;
+  font-size: .91rem;
+  font-weight: 600;
+  line-height: 1.2;
+  transition:
+    background .18s,
+    border-color .18s,
+    color .18s;
+}
 
-    /* VIDEO COMPARISON BLOCKS */
+.filter-btn:hover {
+  background: #132634;
+  border-color: #52758b;
+  color: #f1f8fc;
+}
 
-    .gallery {
-      display: grid;
-      gap: 30px;
-      padding: 38px 0 100px;
-    }
+.filter-btn[aria-pressed="true"] {
+  border-color: #4590bb;
+  background: #173044;
+  color: #e9f5fc;
+}
 
-    .pair {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      overflow: hidden;
-    }
+.filter-btn:focus-visible,
+a:focus-visible {
+  outline: 2px solid #91c6e1;
+  outline-offset: 3px;
+}
 
-    .pair-heading {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      flex-wrap: wrap;
-      gap: 10px 20px;
-      padding: 21px 24px;
-    }
+.count {
+  color: #bdcdd9;
+  font-size: .88rem;
+  font-weight: 600;
+  margin-left: auto;
+  white-space: nowrap;
+}
 
-    .pair-heading h2 {
-      font-size: clamp(1.1rem, 2vw, 1.4rem);
-      font-weight: 500;
-      line-height: 1.5;
-      margin: 0;
-      overflow-wrap: anywhere;
-    }
+/* VIDEO COMPARISONS */
 
-    .pair-heading span {
-      color: #91afc2;
-      font-size: .8rem;
-    }
+.gallery {
+  display: grid;
+  gap: 30px;
+  padding: 38px 0 100px;
+}
 
-    .videos {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: var(--line);
-    }
+.pair {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
 
-    .video-box {
-      min-width: 0;
-      background: #060b11;
-    }
+.pair-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  padding: 21px 24px;
+}
 
-    .video-label {
-      padding: 11px 16px;
-      font-size: .82rem;
-      background: #101d29;
-      color: #c8d5de;
-    }
+.pair-heading h2 {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
 
-    .video-label.output {
-      color: #6db0d1;
-    }
+.pair-heading span {
+  color: #aac1d0;
+  font-size: .9rem;
+  font-weight: 600;
+}
 
-    .video-box video {
-      display: block;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      object-fit: contain;
-      background: #03080e;
-    }
+.videos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+}
 
-    .video-error {
-      display: none;
-      margin: 0;
-      padding: 10px 16px;
-      color: #edb8b8;
-      font-size: .78rem;
-    }
+.video-box {
+  min-width: 0;
+  background: #060b11;
+}
 
-    .video-box.failed .video-error {
-      display: block;
-    }
+.video-label {
+  display: flex;
+  align-items: center;
+  min-height: 53px;
+  padding: 14px 18px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  background: #111d29;
+  color: #edf4f8;
+}
 
-    /* FOOTER */
+.video-label .brand-inline {
+  font-size: 1.4rem;
+}
 
-    .footer {
-      padding: 30px 0 55px;
-      border-top: 1px solid var(--line);
-    }
+/* 4:3 VIDEO CROP */
 
-    .footer a {
-      color: var(--muted);
-      font-size: .86rem;
-    }
+.video-box video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center;
+  background: #03080e;
+}
 
-    .footer a:hover {
-      color: var(--accent);
-    }
+.video-error {
+  display: none;
+  margin: 0;
+  padding: 10px 16px;
+  color: #edb8b8;
+  font-size: .82rem;
+}
 
-    /* RESPONSIVE */
+.video-box.failed .video-error {
+  display: block;
+}
 
-    @media (max-width: 760px) {
-      .container {
-        width: calc(100% - 32px);
-      }
+/* FOOTER */
 
-      .intro {
-        padding: 48px 0 35px;
-      }
+.footer {
+  padding: 30px 0 55px;
+  border-top: 1px solid var(--line);
+}
 
-      .filters {
-        gap: 16px;
-      }
+.footer a {
+  color: #bdceda;
+  font-size: .95rem;
+  font-weight: 600;
+}
 
-      .filter-name {
-        width: 75px;
-      }
+.footer a:hover {
+  color: var(--accent);
+}
 
-      .count {
-        width: 100%;
-        margin: 0;
-      }
+/* MOBILE */
 
-      .gallery {
-        padding-top: 24px;
-        gap: 22px;
-      }
+@media (max-width: 760px) {
+  .container {
+    width: calc(100% - 32px);
+  }
 
-      .videos {
-        grid-template-columns: 1fr;
-      }
+  .intro {
+    padding: 48px 0 35px;
+  }
 
-      .pair-heading {
-        padding: 17px;
-      }
-    }
+  .filters {
+    gap: 16px;
+  }
 
-    @media (prefers-reduced-motion: reduce) {
-      * { transition: none !important; }
-    }
-  </style>
+  .filter-name {
+    width: 75px;
+  }
+
+  .count {
+    width: 100%;
+    margin: 0;
+  }
+
+  .gallery {
+    padding-top: 24px;
+    gap: 22px;
+  }
+
+  .videos {
+    grid-template-columns: 1fr;
+  }
+
+  .pair-heading {
+    padding: 17px;
+  }
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
+<div class="container">
 
-    <header class="topbar">
-      <a class="wordmark" href="../index.html">
-        DrivENVS
-      </a>
+  <header class="topbar">
+    <a href="../index.html" class="wordmark">
+      DrivENVS
+    </a>
 
-      <a class="switch" href="../nuscenes/index.html">
-        View nuScenes ↗
-      </a>
-    </header>
+    <a href="../nuscenes/index.html" class="switch">
+      View nuScenes
+      <svg class="switch-arrow"
+           viewBox="0 0 24 24"
+           aria-hidden="true">
+        <path d="M7 17 17 7M8 7h9v9"/>
+      </svg>
+    </a>
+  </header>
 
-    <main>
+  <main>
+    <section class="intro">
+      <h1>Waymo</h1>
+      <p>Input and synthesized views, side by side.</p>
+    </section>
 
-      <section class="intro">
-        <h1>Waymo</h1>
-        <p>Input and synthesized views, side by side.</p>
-      </section>
+    <div class="filters">
+      <div class="filter-group">
+        <span class="filter-name">Distance</span>
 
-      <div class="filters" aria-label="Video filters">
+        <button class="filter-btn"
+                type="button"
+                data-distance="1m">1 m</button>
 
-        <div class="filter-group">
-          <span class="filter-name">Distance</span>
-
-          <button class="filter-btn"
-                  data-distance="1m"
-                  type="button">1 m</button>
-
-          <button class="filter-btn"
-                  data-distance="2m"
-                  type="button">2 m</button>
-        </div>
-
-        <div class="filter-group">
-          <span class="filter-name">Direction</span>
-
-          <button class="filter-btn"
-                  data-direction="ALL"
-                  type="button">All</button>
-
-          <button class="filter-btn"
-                  data-direction="L"
-                  type="button">Left</button>
-
-          <button class="filter-btn"
-                  data-direction="R"
-                  type="button">Right</button>
-
-          <button class="filter-btn"
-                  data-direction="U"
-                  type="button">Up</button>
-        </div>
-
-        <span class="count" id="count"></span>
-
+        <button class="filter-btn"
+                type="button"
+                data-distance="2m">2 m</button>
       </div>
 
-      <section
-        class="gallery"
-        id="gallery"
-        aria-label="Waymo video comparisons">
-      </section>
+      <div class="filter-group">
+        <span class="filter-name">Direction</span>
 
-    </main>
+        <button class="filter-btn"
+                type="button"
+                data-direction="ALL">All</button>
 
-    <footer class="footer">
-      <a href="../index.html">
-        ← Back to DrivENVS
-      </a>
-    </footer>
+        <button class="filter-btn"
+                type="button"
+                data-direction="L">Left</button>
 
-  </div>
+        <button class="filter-btn"
+                type="button"
+                data-direction="R">Right</button>
 
-  <script>
-    // These identifiers correspond to the original Waymo files.
-    // Example filename:
-    // L2M_2709541197299883157_1140_000_1160_000_input.mp4
+        <button class="filter-btn"
+                type="button"
+                data-direction="U">Up</button>
+      </div>
 
-    const DATA = {
-      "1m": {
-        L: [
-          "2709541197299883157_1140_000_1160_000",
-          "3485136235103477552_600_000_620_000",
-          "6278307160249415497_1700_000_1720_000"
-        ],
+      <span class="count" id="count"></span>
+    </div>
 
-        R: [
-          "1376304843325714018_3420_000_3440_000",
-          "2795127582672852315_4140_000_4160_000",
-          "3400465735719851775_1400_000_1420_000",
-          "2257381802419655779_820_000_840_000"
-        ],
+    <section class="gallery"
+             id="gallery"
+             aria-label="Waymo video comparisons">
+    </section>
+  </main>
 
-        U: [
-          "10488772413132920574_680_000_700_000",
-          "1735154401471216485_440_000_460_000",
-          "6228701001600487900_720_000_740_000"
-        ]
-      },
+  <footer class="footer">
+    <a href="../index.html">
+      ← Back to
+      <span class="brand-inline">DrivENVS</span>
+    </a>
+  </footer>
 
-      "2m": {
-        L: [
-          "1664548685643064400_2240_000_2260_000",
-          "3341890853207909601_1020_000_1040_000",
-          "13732041959462600641_720_000_740_000"
-        ],
+</div>
 
-        R: [
-          "5648007586817904385_3220_000_3240_000",
-          "2383902674438058857_4420_000_4440_000",
-          "4037952268810331899_2420_000_2440_000"
-        ],
+<script>
+/* WAYMO VIDEO DATA — 19 PAIRS */
 
-        U: [
-          "3459095437766396887_1600_000_1620_000",
-          "10488772413132920574_680_000_700_000",
-          "13732041959462600641_720_000_740_000"
-        ]
+const DATA = {
+  "1m": {
+    L: [
+      "2709541197299883157_1140_000_1160_000",
+      "3485136235103477552_600_000_620_000",
+      "6278307160249415497_1700_000_1720_000"
+    ],
+    R: [
+      "1376304843325714018_3420_000_3440_000",
+      "2795127582672852315_4140_000_4160_000",
+      "3400465735719851775_1400_000_1420_000",
+      "2257381802419655779_820_000_840_000"
+    ],
+    U: [
+      "10488772413132920574_680_000_700_000",
+      "1735154401471216485_440_000_460_000",
+      "6228701001600487900_720_000_740_000"
+    ]
+  },
+
+  "2m": {
+    L: [
+      "1664548685643064400_2240_000_2260_000",
+      "3341890853207909601_1020_000_1040_000",
+      "13732041959462600641_720_000_740_000"
+    ],
+    R: [
+      "5648007586817904385_3220_000_3240_000",
+      "2383902674438058857_4420_000_4440_000",
+      "4037952268810331899_2420_000_2440_000"
+    ],
+    U: [
+      "3459095437766396887_1600_000_1620_000",
+      "10488772413132920574_680_000_700_000",
+      "13732041959462600641_720_000_740_000"
+    ]
+  }
+};
+
+const params = new URLSearchParams(location.search);
+
+let distance =
+  params.get("distance") === "2m" ? "2m" : "1m";
+
+let direction =
+  ["ALL", "L", "R", "U"].includes(params.get("direction"))
+    ? params.get("direction")
+    : "ALL";
+
+const gallery = document.getElementById("gallery");
+const count = document.getElementById("count");
+
+const directionNames = {
+  L: "Left",
+  R: "Right",
+  U: "Up"
+};
+
+function sceneName(value) {
+  const match = value.match(
+    /^(.+?)_(\d+)_000_(\d+)_000$/
+  );
+
+  if (!match) return value;
+
+  return `${match[1]} · ${match[2]}–${match[3]}`;
+}
+
+/* LAZY VIDEO LOADING */
+
+const observer = "IntersectionObserver" in window
+  ? new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        const video = entry.target;
+        video.src = video.dataset.src;
+        video.load();
+        observer.unobserve(video);
+      });
+    }, {
+      rootMargin: "450px 0px"
+    })
+  : null;
+
+/* SYNCHRONIZE INPUT AND DRIVENVS */
+
+function synchronizePair(a, b) {
+  let updating = false;
+  let leader = a;
+
+  for (const [video, other] of [[a, b], [b, a]]) {
+    video.addEventListener("play", () => {
+      leader = video;
+      if (updating) return;
+
+      updating = true;
+
+      if (
+        other.readyState >= 1 &&
+        Math.abs(video.currentTime - other.currentTime) > .12
+      ) {
+        other.currentTime = video.currentTime;
       }
-    };
 
-    const params = new URLSearchParams(location.search);
+      if (other.paused) {
+        other.play().catch(() => {});
+      }
 
-    let distance = params.get("distance") === "2m"
-      ? "2m" : "1m";
+      updating = false;
+    });
 
-    let direction =
-      ["ALL", "L", "R", "U"].includes(params.get("direction"))
-        ? params.get("direction")
-        : "ALL";
+    video.addEventListener("pause", () => {
+      if (updating) return;
 
-    const gallery = document.getElementById("gallery");
-    const count = document.getElementById("count");
+      updating = true;
 
-    const directions = {
-      L: "Left",
-      R: "Right",
-      U: "Up"
-    };
+      if (!other.paused) {
+        other.pause();
+      }
 
-    // Convert original Waymo identifiers into readable scene labels.
-    function getSceneLabel(value) {
-      const match = value.match(
-        /^(.+?)_(\d+)_000_(\d+)_000$/
+      updating = false;
+    });
+
+    video.addEventListener("seeking", () => {
+      if (updating || other.readyState < 1) return;
+
+      if (
+        Math.abs(video.currentTime - other.currentTime) < .10
+      ) return;
+
+      updating = true;
+
+      try {
+        other.currentTime = video.currentTime;
+      } catch (error) {}
+
+      updating = false;
+    });
+
+    video.addEventListener("timeupdate", () => {
+      if (
+        video !== leader ||
+        video.paused ||
+        other.readyState < 1 ||
+        updating
+      ) return;
+
+      if (
+        Math.abs(video.currentTime - other.currentTime) > .25
+      ) {
+        updating = true;
+
+        try {
+          other.currentTime = video.currentTime;
+        } catch (error) {}
+
+        updating = false;
+      }
+    });
+
+    video.addEventListener("ended", () => {
+      other.pause();
+    });
+  }
+}
+
+/* RENDER COMPARISONS */
+
+function render() {
+  gallery.querySelectorAll("video").forEach(video => {
+    video.pause();
+    observer?.unobserve(video);
+  });
+
+  gallery.replaceChildren();
+
+  const activeDirections =
+    direction === "ALL"
+      ? ["L", "R", "U"]
+      : [direction];
+
+  const clips = activeDirections.flatMap(dir =>
+    DATA[distance][dir].map(scene => ({
+      dir,
+      scene
+    }))
+  );
+
+  count.textContent = `${clips.length} comparisons`;
+
+  document.querySelectorAll("[data-distance]")
+    .forEach(button => {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.distance === distance)
       );
+    });
 
-      if (!match) return value;
+  document.querySelectorAll("[data-direction]")
+    .forEach(button => {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.direction === direction)
+      );
+    });
 
-      return `${match[1]} · ${match[2]}–${match[3]}`;
-    }
+  clips.forEach((clip, index) => {
+    const article = document.createElement("article");
+    article.className = "pair";
 
-    // Lazy video loading
-    const observer = "IntersectionObserver" in window
-      ? new IntersectionObserver(entries => {
-          entries.forEach(entry => {
-            if (!entry.isIntersecting) return;
+    const heading = document.createElement("div");
+    heading.className = "pair-heading";
 
-            const video = entry.target;
+    const title = document.createElement("h2");
+    title.textContent = sceneName(clip.scene);
 
-            video.src = video.dataset.src;
-            video.load();
+    const meta = document.createElement("span");
+    meta.textContent =
+      `${directionNames[clip.dir]} · ` +
+      `${distance.toUpperCase()} · ` +
+      `${String(index + 1).padStart(2, "0")}`;
 
-            observer.unobserve(video);
-          });
-        }, {
-          rootMargin: "450px 0px"
-        })
-      : null;
+    heading.append(title, meta);
 
-    // Synchronize input and output videos.
-    function synchronizePair(a, b) {
-      let updating = false;
-      let leading = a;
+    const videos = document.createElement("div");
+    videos.className = "videos";
 
-      for (const [video, other] of [[a, b], [b, a]]) {
+    const players = [];
 
-        video.addEventListener("play", () => {
-          leading = video;
+    for (const [folder, label] of [
+      ["input", "Input"],
+      ["output", "DrivENVS"]
+    ]) {
+      const panel = document.createElement("div");
+      panel.className = "video-box";
 
-          if (updating) return;
+      const videoLabel = document.createElement("div");
+      videoLabel.className = "video-label";
 
-          updating = true;
+      if (folder === "output") {
+        const brand = document.createElement("span");
+        brand.className = "brand-inline";
+        brand.textContent = "DrivENVS";
+        videoLabel.appendChild(brand);
+      } else {
+        videoLabel.textContent = label;
+      }
 
-          if (
-            other.readyState >= 1 &&
-            Math.abs(video.currentTime - other.currentTime) > .12
-          ) {
-            other.currentTime = video.currentTime;
-          }
+      const video = document.createElement("video");
+      video.controls = true;
+      video.muted = true;
+      video.playsInline = true;
+      video.preload = "none";
 
-          if (other.paused) {
-            other.play().catch(() => {});
-          }
+      const stem = `${clip.dir}2M_${clip.scene}`;
 
-          updating = false;
-        });
+      video.dataset.src =
+        `videos/${distance}/${clip.dir}_${folder}/` +
+        `${stem}_${folder}.mp4`;
 
-        video.addEventListener("pause", () => {
-          if (updating) return;
+      const error = document.createElement("p");
+      error.className = "video-error";
+      error.textContent =
+        "Video not found. Please check its path.";
 
-          updating = true;
+      video.addEventListener("error", () => {
+        panel.classList.add("failed");
+      });
 
-          if (!other.paused) {
-            other.pause();
-          }
+      panel.append(videoLabel, video, error);
+      videos.append(panel);
+      players.push(video);
 
-          updating = false;
-        });
-
-        video.addEventListener("seeking", () => {
-          if (updating || other.readyState < 1) return;
-
-          if (
-            Math.abs(video.currentTime - other.currentTime) < .10
-          ) return;
-
-          updating = true;
-
-          try {
-            other.currentTime = video.currentTime;
-          } catch (error) {}
-
-          updating = false;
-        });
-
-        video.addEventListener("timeupdate", () => {
-          if (
-            video !== leading ||
-            video.paused ||
-            other.readyState < 1 ||
-            updating
-          ) return;
-
-          if (
-            Math.abs(video.currentTime - other.currentTime) > .25
-          ) {
-            updating = true;
-
-            try {
-              other.currentTime = video.currentTime;
-            } catch (error) {}
-
-            updating = false;
-          }
-        });
-
-        video.addEventListener("ended", () => {
-          other.pause();
-        });
+      if (observer) {
+        observer.observe(video);
+      } else {
+        video.src = video.dataset.src;
+        video.load();
       }
     }
 
-    function render() {
-      // Stop old videos before changing filters.
-      gallery.querySelectorAll("video").forEach(video => {
-        video.pause();
-        observer?.unobserve(video);
-      });
+    synchronizePair(players[0], players[1]);
 
-      gallery.replaceChildren();
+    article.append(heading, videos);
+    gallery.append(article);
+  });
 
-      const activeDirections = direction === "ALL"
-        ? ["L", "R", "U"]
-        : [direction];
+  const url = new URL(location.href);
 
-      const clips = activeDirections.flatMap(dir =>
-        DATA[distance][dir].map(scene => ({
-          dir,
-          scene
-        }))
-      );
+  url.searchParams.set("distance", distance);
+  url.searchParams.set("direction", direction);
 
-      count.textContent = `${clips.length} comparisons`;
+  history.replaceState(null, "", url);
+}
 
-      document.querySelectorAll("[data-distance]")
-        .forEach(button => {
-          button.setAttribute(
-            "aria-pressed",
-            String(button.dataset.distance === distance)
-          );
-        });
+/* FILTER BUTTONS */
 
-      document.querySelectorAll("[data-direction]")
-        .forEach(button => {
-          button.setAttribute(
-            "aria-pressed",
-            String(button.dataset.direction === direction)
-          );
-        });
+document.querySelectorAll("[data-distance]")
+  .forEach(button => {
+    button.addEventListener("click", () => {
+      distance = button.dataset.distance;
+      render();
+    });
+  });
 
-      clips.forEach((clip, index) => {
-        const article = document.createElement("article");
-        article.className = "pair";
+document.querySelectorAll("[data-direction]")
+  .forEach(button => {
+    button.addEventListener("click", () => {
+      direction = button.dataset.direction;
+      render();
+    });
+  });
 
-        const heading = document.createElement("div");
-        heading.className = "pair-heading";
-
-        const title = document.createElement("h2");
-        title.textContent = getSceneLabel(clip.scene);
-
-        const meta = document.createElement("span");
-        meta.textContent =
-          `${directions[clip.dir]} · ${distance.toUpperCase()} ` +
-          `· ${String(index + 1).padStart(2, "0")}`;
-
-        heading.append(title, meta);
-
-        const videos = document.createElement("div");
-        videos.className = "videos";
-
-        const players = [];
-
-        for (const [folder, label] of [
-          ["input", "Input"],
-          ["output", "DrivENVS"]
-        ]) {
-          const panel = document.createElement("div");
-          panel.className = "video-box";
-
-          const videoLabel = document.createElement("div");
-          videoLabel.className =
-            "video-label" + (folder === "output" ? " output" : "");
-
-          videoLabel.textContent = label;
-
-          const video = document.createElement("video");
-          video.controls = true;
-          video.muted = true;
-          video.playsInline = true;
-          video.preload = "none";
-
-          const stem = `${clip.dir}2M_${clip.scene}`;
-
-          video.dataset.src =
-            `videos/${distance}/${clip.dir}_${folder}/` +
-            `${stem}_${folder}.mp4`;
-
-          const errorText = document.createElement("p");
-          errorText.className = "video-error";
-          errorText.textContent =
-            "Video not found. Please check its path.";
-
-          video.addEventListener("error", () => {
-            panel.classList.add("failed");
-          });
-
-          panel.append(videoLabel, video, errorText);
-          videos.append(panel);
-          players.push(video);
-
-          if (observer) {
-            observer.observe(video);
-          } else {
-            video.src = video.dataset.src;
-            video.load();
-          }
-        }
-
-        synchronizePair(players[0], players[1]);
-
-        article.append(heading, videos);
-        gallery.append(article);
-      });
-
-      const url = new URL(location.href);
-
-      url.searchParams.set("distance", distance);
-      url.searchParams.set("direction", direction);
-
-      history.replaceState(null, "", url);
-    }
-
-    document.querySelectorAll("[data-distance]")
-      .forEach(button => {
-        button.addEventListener("click", () => {
-          distance = button.dataset.distance;
-          render();
-        });
-      });
-
-    document.querySelectorAll("[data-direction]")
-      .forEach(button => {
-        button.addEventListener("click", () => {
-          direction = button.dataset.direction;
-          render();
-        });
-      });
-
-    render();
-  </script>
+render();
+</script>
 </body>
 </html>

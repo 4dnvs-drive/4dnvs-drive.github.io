@@ -2,1870 +2,1652 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080f17">
-  <meta name="description" content="DrivENVS: Generative Novel View Synthesis from Monocular Driving Videos">
-  <title>DrivENVS — Generative Novel View Synthesis</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --bg: #080f17;
-      --panel: #0d1823;
-      --line: #283a49;
-      --text: #edf4f8;
-      --muted: #9aafbf;
-      --accent: #2e95ca;
-      --brand: linear-gradient(90deg, #5de0e6, #004aad);
-    }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    a { color: inherit; text-decoration: none; }
-    button { font: inherit; cursor: pointer; }
-    img, video { display: block; width: 100%; }
-
-    a:focus-visible, button:focus-visible {
-      outline: 2px solid #6eb0d1;
-      outline-offset: 4px;
-    }
-
-    .shell {
-      width: min(1320px, calc(100% - 80px));
-      margin: auto;
-    }
-
-    .wordmark {
-      font-family: Anton, Impact, sans-serif;
-      font-weight: 400;
-      letter-spacing: .012em;
-      line-height: 1.08;
-      background: var(--brand);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-
-    /* =====================================
-       FULLSCREEN VIDEO HERO
-    ===================================== */
-
-    .cinematic-hero {
-      position: relative;
-      isolation: isolate;
-      display: grid;
-      place-items: center;
-      min-height: 100svh;
-      padding: 85px 24px;
-      overflow: hidden;
-      text-align: center;
-      background: #07111d;
-    }
-
-    .hero-background,
-    .hero-shade {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
-    .hero-background {
-      z-index: -2;
-      object-fit: cover;
-      object-position: center;
-      filter: saturate(.85);
-    }
-
-    /* Dark overlay above background video */
-    .hero-shade {
-      z-index: -1;
-      background:
-        linear-gradient(
-          180deg,
-          rgba(4,10,18,.53),
-          rgba(4,10,18,.60) 55%,
-          rgba(4,10,18,.93)
-        ),
-        linear-gradient(
-          90deg,
-          rgba(4,10,18,.22),
-          transparent 50%,
-          rgba(4,10,18,.22)
-        );
-    }
-
-    .hero-content {
-      width: min(1100px, 100%);
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-title {
-      font-size: clamp(5.4rem, 13.5vw, 12rem);
-      margin: 0 0 17px;
-      white-space: nowrap;
-    }
-
-    .paper-title {
-      font-size: clamp(1.65rem, 3.4vw, 3.55rem);
-      font-weight: 500;
-      letter-spacing: -.052em;
-      line-height: 1.17;
-      max-width: 1000px;
-      margin: 0 auto 31px;
-      text-wrap: balance;
-    }
-
-    .authors {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 9px 24px;
-      font-size: clamp(1.02rem, 1.48vw, 1.25rem);
-      line-height: 1.55;
-      text-shadow: 0 1px 6px #0009;
-    }
-
-    .authors sup {
-      font-size: .65em;
-      color: #7bb8d8;
-    }
-
-    .affiliations {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 7px 28px;
-      margin-top: 17px;
-      font-size: clamp(.9rem, 1.14vw, 1.05rem);
-      color: #d3e1e9;
-      line-height: 1.65;
-      text-shadow: 0 1px 5px #0009;
-    }
-
-    .hero-description {
-      max-width: 740px;
-      margin: 27px auto 0;
-      font-size: clamp(.9rem, 1vw, 1rem);
-      line-height: 1.8;
-      color: #d7e2ea;
-    }
-
-    .watch-link {
-      display: inline-block;
-      margin-top: 29px;
-      border-bottom: 1px solid #a1b9c8;
-      padding-bottom: 9px;
-      font-size: .87rem;
-      color: #eef7fc;
-    }
-
-    .watch-link:hover {
-      color: #9ac6df;
-      border-color: var(--accent);
-    }
-
-    /* =====================================
-       TEASER VIDEO BELOW HERO
-    ===================================== */
-
-    .teaser-section {
-      padding: 90px 0 110px;
-    }
-
-    .teaser-frame {
-      width: min(1030px, calc(100% - 48px));
-      margin: auto;
-      border: 1px solid #30485b;
-      overflow: hidden;
-      background: #030912;
-    }
-
-    /* Crop black side bars from 16:9 source */
-    .teaser-crop {
-      aspect-ratio: 4 / 3;
-      overflow: hidden;
-      background: #030912;
-    }
-
-    .teaser-crop video {
-      height: 100%;
-      width: 100%;
-      object-fit: cover;
-      object-position: center;
-    }
-
-    /* =====================================
-       SHARED SECTIONS
-    ===================================== */
-
-    .section {
-      border-top: 1px solid var(--line);
-      padding: 110px 0;
-    }
-
-    .section-title {
-      font-size: clamp(2.8rem, 5.1vw, 5.3rem);
-      font-weight: 500;
-      letter-spacing: -.065em;
-      line-height: 1.05;
-      margin: 0;
-      max-width: 900px;
-    }
-
-    .section-description {
-      color: var(--muted);
-      font-size: 1rem;
-      line-height: 1.8;
-      max-width: 750px;
-      margin: 24px 0 0;
-    }
-
-    /* =====================================
-       METHOD
-    ===================================== */
-
-    .method-grid {
-      display: grid;
-      grid-template-columns: .9fr 1.1fr;
-      gap: 65px;
-      margin-top: 60px;
-      align-items: start;
-    }
-
-    .method-list {
-      border-top: 1px solid var(--line);
-    }
-
-    .method-item {
-      display: grid;
-      grid-template-columns: 18px 1fr;
-      gap: 18px;
-      padding: 27px 0;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .method-dot {
-      width: 7px;
-      height: 7px;
-      background: var(--accent);
-      border-radius: 50%;
-      margin: 10px 0 0 4px;
-    }
-
-    .method-item h3 {
-      font-size: 1.24rem;
-      font-weight: 500;
-      margin: 0 0 10px;
-    }
-
-    .method-item p {
-      font-size: .9rem;
-      line-height: 1.75;
-      color: var(--muted);
-      margin: 0;
-    }
-
-    .method-image {
-      margin: 0;
-      padding: 14px;
-      border: 1px solid var(--line);
-      background: #f4f6f8;
-    }
-
-    .method-image img {
-      height: auto;
-    }
-
-    /* =====================================
-       INTERACTIVE CAMERA STUDY
-    ===================================== */
-
-    .camera-section {
-      background: #0b1621;
-    }
-
-    .camera-grid {
-      display: grid;
-      grid-template-columns: .75fr 1.25fr;
-      gap: 65px;
-      align-items: center;
-    }
-
-    .camera-copy .section-title {
-      font-size: clamp(2.6rem, 4.5vw, 4.8rem);
-    }
-
-    .control-label {
-      margin: 27px 0 11px;
-      color: #b9cbd6;
-      font-size: .81rem;
-      font-weight: 600;
-    }
-
-    .control-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 9px;
-    }
-
-    .control-button {
-      padding: 11px 18px;
-      background: transparent;
-      border: 1px solid #39566b;
-      color: #c7d6df;
-      font-size: .83rem;
-    }
-
-    .control-button:hover {
-      border-color: #568dae;
-    }
-
-    .control-button[aria-pressed="true"] {
-      border-color: var(--accent);
-      background: #173349;
-      color: #e9f6fb;
-    }
-
-    .viewer {
-      position: relative;
-      min-width: 0;
-      border: 1px solid #2d4559;
-      background: #09141e;
-      overflow: hidden;
-    }
-
-    .viewer:before {
-      content: '';
-      position: absolute;
-      inset: 0 auto auto 0;
-      width: 100%;
-      height: 2px;
-      background: var(--brand);
-      pointer-events: none;
-      z-index: 2;
-    }
-
-    #three-scene {
-      height: 510px;
-      width: 100%;
-      cursor: grab;
-      touch-action: none;
-    }
-
-    #three-scene:active {
-      cursor: grabbing;
-    }
-
-    #three-scene canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    .reset {
-      position: absolute;
-      top: 17px;
-      right: 17px;
-      z-index: 3;
-      background: #08141ee8;
-      color: #dfebf4;
-      border: 1px solid #456176;
-      padding: 10px 14px;
-      font-size: .75rem;
-    }
-
-    .viewer-bottom {
-      position: absolute;
-      bottom: 16px;
-      left: 18px;
-      right: 18px;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: end;
-      pointer-events: none;
-    }
-
-    .legend,
-    .viewer-hint {
-      background: #060e16d9;
-      color: #c7d6e1;
-      font-size: .72rem;
-      padding: 9px 11px;
-    }
-
-    .legend {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .legend span {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-    }
-
-    .legend i {
-      width: 15px;
-      height: 4px;
-      display: inline-block;
-      background: #2e95ca;
-    }
-
-    .legend i.target {
-      background: #3067bd;
-    }
-
-    .viewer-fallback {
-      height: 100%;
-      min-height: 450px;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    /* =====================================
-       DATASET BLOCKS
-    ===================================== */
-
-    .results-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-top: 55px;
-    }
-
-    .result-card {
-      background: var(--panel);
-      border: 1px solid #304554;
-      min-height: 270px;
-      padding: 42px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition:
-        background .2s,
-        border-color .2s,
-        transform .2s;
-    }
-
-    .result-card:hover {
-      background: #122335;
-      border-color: #4284a6;
-      transform: translateY(-3px);
-    }
-
-    .result-top {
-      display: flex;
-      justify-content: space-between;
-      color: var(--muted);
-      font-size: .83rem;
-    }
-
-    .result-arrow {
-      color: var(--accent);
-      font-size: 1.5rem;
-    }
-
-    .result-card h3 {
-      font-size: clamp(3rem, 5vw, 5.2rem);
-      font-weight: 500;
-      letter-spacing: -.075em;
-      line-height: 1;
-      margin: 0 0 12px;
-    }
-
-    .result-card p {
-      font-size: .85rem;
-      color: #a6bccb;
-      margin: 0;
-    }
-
-    /* =====================================
-       EVALUATION
-    ===================================== */
-
-    .evidence-grid {
-      display: grid;
-      grid-template-columns: .85fr 1.15fr;
-      gap: 85px;
-    }
-
-    .metric-list {
-      border-top: 1px solid var(--line);
-    }
-
-    .metric {
-      display: grid;
-      grid-template-columns: 155px 1fr;
-      gap: 26px;
-      align-items: center;
-      padding: 30px 0;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .metric strong {
-      font: 3.2rem Anton, Impact, sans-serif;
-      color: #71b6d5;
-      white-space: nowrap;
-    }
-
-    .metric span {
-      color: #adbfcb;
-      font-size: .9rem;
-      line-height: 1.7;
-    }
-
-    /* FOOTER */
-
-    .footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px;
-      padding: 30px 0 50px;
-      border-top: 1px solid var(--line);
-    }
-
-    .footer .wordmark {
-      font-size: 1.8rem;
-    }
-
-    .footer a:last-child {
-      font-size: .84rem;
-      color: var(--muted);
-    }
-
-    /* =====================================
-       RESPONSIVE
-    ===================================== */
-
-    @media (max-width: 1000px) {
-      .camera-grid {
-        grid-template-columns: 1fr;
-        gap: 40px;
-      }
-
-      .method-grid { gap: 30px; }
-      .evidence-grid { gap: 40px; }
-    }
-
-    @media (max-width: 760px) {
-      .shell {
-        width: calc(100% - 36px);
-      }
-
-      .cinematic-hero {
-        min-height: 100svh;
-        padding: 70px 18px;
-      }
-
-      .hero-title {
-        font-size: clamp(4.8rem, 17vw, 8rem);
-      }
-
-      .paper-title {
-        font-size: clamp(1.45rem, 4.8vw, 2.3rem);
-      }
-
-      .authors { font-size: 1rem; }
-      .affiliations { font-size: .88rem; }
-      .hero-description { font-size: .9rem; }
-
-      .teaser-section {
-        padding: 65px 0 80px;
-      }
-
-      .teaser-frame {
-        width: calc(100% - 30px);
-      }
-
-      .section {
-        padding: 78px 0;
-      }
-
-      .method-grid,
-      .results-grid,
-      .evidence-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .method-grid {
-        margin-top: 37px;
-      }
-
-      #three-scene {
-        height: 430px;
-      }
-
-      .result-card {
-        min-height: 220px;
-      }
-    }
-
-    @media (max-width: 490px) {
-      .hero-title { font-size: 17vw; }
-
-      .viewer-bottom {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      #three-scene { height: 390px; }
-
-      .metric {
-        grid-template-columns: 110px 1fr;
-        gap: 15px;
-      }
-
-      .metric strong { font-size: 2.3rem; }
-
-      .footer {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      * { transition: none !important; }
-    }
-  </style>
-
-  <!-- Three.js for the interactive camera simulation -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
-      }
-    }
-  </script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080f17">
+<meta name="description" content="DrivENVS: Generative Novel View Synthesis from Monocular Driving Videos">
+<title>DrivENVS — Generative Novel View Synthesis</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #080f17;
+  --panel: #0d1823;
+  --line: #283a49;
+  --text: #edf4f8;
+  --muted: #9aafbf;
+  --accent: #2e95ca;
+  --brand: linear-gradient(90deg, #5de0e6, #004aad);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "DM Sans", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+img, video { display: block; width: 100%; }
+
+.shell {
+  width: min(1320px, calc(100% - 80px));
+  margin: auto;
+}
+
+/* BRAND */
+
+.wordmark,
+.brand-inline {
+  display: inline-block;
+  font-family: Anton, Impact, sans-serif;
+  font-weight: 400;
+  letter-spacing: .012em;
+  line-height: 1.08;
+  background: var(--brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.brand-inline {
+  font-size: 1.12em;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* HERO */
+
+.cinematic-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 85px 24px;
+  overflow: hidden;
+  background: #07111d;
+}
+
+.hero-background,
+.hero-shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hero-background {
+  z-index: -2;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(.85);
+}
+
+.hero-shade {
+  z-index: -1;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(4,10,18,.53),
+      rgba(4,10,18,.60) 55%,
+      rgba(4,10,18,.93)
+    ),
+    linear-gradient(
+      90deg,
+      rgba(4,10,18,.22),
+      transparent 50%,
+      rgba(4,10,18,.22)
+    );
+}
+
+.hero-content {
+  width: min(1100px, 100%);
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title {
+  font-size: clamp(5.4rem, 13.5vw, 12rem);
+  margin: 0 0 17px;
+  white-space: nowrap;
+}
+
+.paper-title {
+  font-size: clamp(1.65rem, 3.4vw, 3.55rem);
+  font-weight: 500;
+  letter-spacing: -.052em;
+  line-height: 1.17;
+  max-width: 1000px;
+  margin: 0 auto 31px;
+  text-wrap: balance;
+}
+
+.authors {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 9px 24px;
+  font-size: clamp(1.02rem, 1.48vw, 1.25rem);
+  line-height: 1.55;
+  text-shadow: 0 1px 6px #0009;
+}
+
+.authors sup {
+  font-size: .65em;
+  color: #7bb8d8;
+}
+
+.affiliations {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px 28px;
+  margin-top: 17px;
+  font-size: clamp(.9rem, 1.14vw, 1.05rem);
+  color: #d3e1e9;
+  line-height: 1.65;
+  text-shadow: 0 1px 5px #0009;
+}
+
+.hero-description {
+  max-width: 740px;
+  margin: 27px auto 0;
+  font-size: clamp(.9rem, 1vw, 1rem);
+  line-height: 1.8;
+  color: #d7e2ea;
+}
+
+/* ORIGINAL UNDERLINE LINK */
+
+.watch-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 29px;
+  padding: 0 0 9px;
+  border: none;
+  border-bottom: 1px solid #a1b9c8;
+  border-radius: 0;
+  background: transparent;
+  color: #eef7fc;
+  font-size: .87rem;
+  font-weight: 500;
+}
+
+.watch-link:hover {
+  color: #a6cbe0;
+  border-bottom-color: #6ca7c8;
+}
+
+/* TEASER */
+
+.teaser-section {
+  padding: 90px 0 110px;
+}
+
+.teaser-frame {
+  width: min(1030px, calc(100% - 48px));
+  margin: auto;
+  border: 1px solid #30485b;
+  background: #030912;
+  overflow: hidden;
+}
+
+.teaser-crop {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.teaser-crop video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* COMMON SECTIONS */
+
+.section {
+  border-top: 1px solid var(--line);
+  padding: 110px 0;
+}
+
+.section-title {
+  font-size: clamp(2.8rem, 5.1vw, 5.3rem);
+  font-weight: 500;
+  letter-spacing: -.065em;
+  line-height: 1.05;
+  margin: 0;
+  max-width: 900px;
+}
+
+.section-description {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.8;
+  max-width: 750px;
+  margin: 24px 0 0;
+}
+
+/* METHOD */
+
+.method-grid {
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 65px;
+  margin-top: 60px;
+  align-items: start;
+}
+
+.method-list {
+  border-top: 1px solid var(--line);
+}
+
+.method-item {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 18px;
+  padding: 27px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.method-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin: 10px 0 0 4px;
+}
+
+.method-item h3 {
+  font-size: 1.24rem;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.method-item p {
+  font-size: .9rem;
+  color: var(--muted);
+  line-height: 1.75;
+  margin: 0;
+}
+
+.method-image {
+  margin: 0;
+  padding: 14px;
+  background: #f4f6f8;
+  border: 1px solid var(--line);
+}
+
+.method-image img {
+  height: auto;
+}
+
+/* INTERACTIVE CAMERA */
+
+.camera-section {
+  background: #0b1621;
+}
+
+.camera-grid {
+  display: grid;
+  grid-template-columns: .75fr 1.25fr;
+  gap: 65px;
+  align-items: center;
+}
+
+.camera-copy .section-title {
+  font-size: clamp(2.6rem, 4.5vw, 4.8rem);
+}
+
+.control-label {
+  margin: 29px 0 12px;
+  color: #e1ebf1;
+  font-size: .96rem;
+  font-weight: 700;
+}
+
+.control-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+/* MINIMAL OUTLINE — STYLE A */
+
+.control-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 15px;
+  border: 1px solid #354856;
+  border-radius: 7px;
+  background: transparent;
+  color: #c2d0d9;
+  font-size: .91rem;
+  font-weight: 600;
+  line-height: 1.2;
+  transition:
+    background .18s,
+    border-color .18s,
+    color .18s;
+}
+
+.control-button:hover {
+  background: #132634;
+  border-color: #52758b;
+  color: #f1f8fc;
+}
+
+.control-button[aria-pressed="true"] {
+  background: #173044;
+  border-color: #4590bb;
+  color: #e9f5fc;
+}
+
+/* SAME SVG STYLE FOR ALL DIRECTION ARROWS */
+
+.direction-icon {
+  display: block;
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.viewer {
+  position: relative;
+  min-width: 0;
+  background: #09141e;
+  border: 1px solid #2d4559;
+  overflow: hidden;
+}
+
+.viewer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--brand);
+  z-index: 2;
+  pointer-events: none;
+}
+
+#three-scene {
+  width: 100%;
+  height: 510px;
+  cursor: grab;
+  touch-action: none;
+}
+
+#three-scene:active { cursor: grabbing; }
+
+#three-scene canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.reset {
+  position: absolute;
+  top: 17px;
+  right: 17px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 9px 13px;
+  background: rgba(8,22,33,.91);
+  border: 1px solid #385365;
+  border-radius: 7px;
+  color: #c9d9e4;
+  font-size: .81rem;
+  font-weight: 600;
+}
+
+.reset:hover {
+  background: #173044;
+  border-color: #4590bb;
+}
+
+.reset-icon {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.viewer-bottom {
+  position: absolute;
+  bottom: 16px;
+  left: 18px;
+  right: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.legend,
+.viewer-hint {
+  background: #060e16d9;
+  color: #c7d6e1;
+  font-size: .72rem;
+  padding: 9px 11px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legend i {
+  display: inline-block;
+  width: 15px;
+  height: 4px;
+  background: #2e95ca;
+}
+
+.legend i.target {
+  background: #3067bd;
+}
+
+.viewer-fallback {
+  min-height: 450px;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--muted);
+}
+
+/* RESULTS */
+
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 55px;
+}
+
+.result-card {
+  background: var(--panel);
+  border: 1px solid #304554;
+  min-height: 270px;
+  padding: 42px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition:
+    background .2s,
+    border-color .2s,
+    transform .2s;
+}
+
+.result-card:hover {
+  background: #122335;
+  border-color: #4284a6;
+  transform: translateY(-3px);
+}
+
+.result-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+  font-size: .83rem;
+}
+
+.result-arrow {
+  width: 23px;
+  height: 23px;
+  flex: 0 0 23px;
+  fill: none;
+  stroke: #6daacb;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.result-card h3 {
+  font-size: clamp(3rem, 5vw, 5.2rem);
+  font-weight: 500;
+  letter-spacing: -.075em;
+  line-height: 1;
+  margin: 0 0 12px;
+}
+
+.result-card p {
+  color: #a6bccb;
+  font-size: .85rem;
+  margin: 0;
+}
+
+/* EVALUATION */
+
+.evidence-grid {
+  display: grid;
+  grid-template-columns: .85fr 1.15fr;
+  gap: 85px;
+}
+
+.metric-list {
+  border-top: 1px solid var(--line);
+}
+
+.metric {
+  display: grid;
+  grid-template-columns: 155px 1fr;
+  gap: 26px;
+  align-items: center;
+  padding: 30px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.metric strong {
+  font: 3.2rem Anton, Impact, sans-serif;
+  color: #71b6d5;
+  white-space: nowrap;
+}
+
+.metric span {
+  color: #adbfcb;
+  font-size: .9rem;
+  line-height: 1.7;
+}
+
+/* FOOTER */
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 30px 0 50px;
+  border-top: 1px solid var(--line);
+}
+
+.footer .wordmark {
+  font-size: 1.8rem;
+}
+
+.footer a:last-child {
+  color: var(--muted);
+  font-size: .84rem;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1000px) {
+  .camera-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .method-grid { gap: 30px; }
+  .evidence-grid { gap: 40px; }
+}
+
+@media (max-width: 760px) {
+  .shell {
+    width: calc(100% - 36px);
+  }
+
+  .cinematic-hero {
+    min-height: 100svh;
+    padding: 70px 18px;
+  }
+
+  .hero-title {
+    font-size: 17vw;
+  }
+
+  .paper-title {
+    font-size: clamp(1.45rem, 4.8vw, 2.3rem);
+  }
+
+  .authors { font-size: 1rem; }
+  .affiliations { font-size: .88rem; }
+  .hero-description { font-size: .9rem; }
+
+  .teaser-section { padding: 65px 0 80px; }
+  .teaser-frame { width: calc(100% - 30px); }
+  .section { padding: 78px 0; }
+
+  .method-grid,
+  .results-grid,
+  .evidence-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .method-grid { margin-top: 37px; }
+  #three-scene { height: 430px; }
+  .result-card { min-height: 220px; }
+}
+
+@media (max-width: 490px) {
+  .viewer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #three-scene { height: 390px; }
+
+  .metric {
+    grid-template-columns: 110px 1fr;
+    gap: 15px;
+  }
+
+  .metric strong { font-size: 2.3rem; }
+
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+</style>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
+  }
+}
+</script>
 </head>
 
 <body id="top">
-  <main>
+<main>
 
-    <!-- ==================================
-         FULLSCREEN BACKGROUND VIDEO
-    =================================== -->
+  <!-- FULLSCREEN BACKGROUND VIDEO -->
 
-    <section class="cinematic-hero"
-             aria-labelledby="project-title">
+  <section class="cinematic-hero">
+    <video
+      class="hero-background"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      aria-hidden="true">
+      <source src="assets/DrivENVS.mp4" type="video/mp4">
+    </video>
 
-      <!-- Background video -->
-      <video
-        class="hero-background"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="metadata"
-        aria-hidden="true"
-        tabindex="-1">
+    <div class="hero-shade" aria-hidden="true"></div>
 
-        <source
-          src="assets/DrivENVS.mp4"
-          type="video/mp4">
+    <div class="hero-content">
+      <h1 class="wordmark hero-title">DrivENVS</h1>
 
-      </video>
+      <h2 class="paper-title">
+        Generative Novel View Synthesis
+        from Monocular Driving Videos
+      </h2>
 
-      <!-- Dark overlay -->
-      <div class="hero-shade" aria-hidden="true"></div>
+      <div class="authors">
+        <span>Phuc Nguyen<sup>1,2</sup></span>
+        <span>Samin Khan<sup>2</sup></span>
+        <span>Ming C. Lin<sup>1</sup></span>
+        <span>Sudipta N. Sinha<sup>2</sup></span>
+      </div>
 
-      <!-- Text displayed above the video -->
-      <div class="hero-content">
+      <div class="affiliations">
+        <span>
+          <sup>1</sup> University of Maryland, College Park
+        </span>
+        <span>
+          <sup>2</sup> Stack AV
+        </span>
+      </div>
 
-        <h1 class="wordmark hero-title"
-            id="project-title">
-          DrivENVS
-        </h1>
+      <p class="hero-description">
+        From a single driving video,
+        <span class="brand-inline">DrivENVS</span>
+        reconstructs dynamic scenes and synthesizes
+        coherent video from new camera trajectories
+        using geometry-aware, few-step image diffusion.
+      </p>
 
-        <h2 class="paper-title">
-          Generative Novel View Synthesis
-          from Monocular Driving Videos
+      <a class="watch-link" href="#teaser">
+        Watch intro video ↓
+      </a>
+    </div>
+  </section>
+
+  <!-- TEASER -->
+
+  <section class="teaser-section" id="teaser">
+    <div class="teaser-frame">
+      <div class="teaser-crop">
+        <video
+          controls
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata">
+          <source
+            src="assets/4dnvs-teaser.mp4"
+            type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- METHOD -->
+
+  <section class="section" id="method">
+    <div class="shell">
+      <h2 class="section-title">
+        Not a new world.<br>
+        A new way to see it.
+      </h2>
+
+      <p class="section-description">
+        <span class="brand-inline">DrivENVS</span>
+        grounds each novel camera view in motion-aware
+        4D geometry, retrieves relevant observations from
+        the source video, and refines coarse renderings
+        into temporally coherent output.
+      </p>
+
+      <div class="method-grid">
+        <div class="method-list">
+
+          <article class="method-item">
+            <span class="method-dot"></span>
+            <div>
+              <h3>Recover the dynamic scene</h3>
+              <p>
+                Build a 4D representation with aggregated static
+                geometry and time-indexed moving objects, then
+                render a coarse view along the target trajectory.
+              </p>
+            </div>
+          </article>
+
+          <article class="method-item">
+            <span class="method-dot"></span>
+            <div>
+              <h3>Look back at relevant frames</h3>
+              <p>
+                Select references using 3D co-visibility;
+                combine top-1 joint attention,
+                multi-reference cross-attention and
+                relative camera-time encoding.
+              </p>
+            </div>
+          </article>
+
+          <article class="method-item">
+            <span class="method-dot"></span>
+            <div>
+              <h3>Refine, frame by frame</h3>
+              <p>
+                Apply few-step image diffusion using prior
+                generated frames to maintain temporal
+                consistency over long sequences.
+              </p>
+            </div>
+          </article>
+
+        </div>
+
+        <figure class="method-image">
+          <img
+            src="assets/method.png"
+            alt="DrivENVS method diagram"
+            loading="lazy">
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAMERA STUDY -->
+
+  <section class="section camera-section" id="camera">
+    <div class="shell camera-grid">
+      <div class="camera-copy">
+        <h2 class="section-title">
+          The camera moves.<br>
+          The scene persists.
         </h2>
 
-        <div class="authors">
-          <span>Phuc Nguyen<sup>1,2</sup></span>
-          <span>Samin Khan<sup>2</sup></span>
-          <span>Ming C. Lin<sup>1</sup></span>
-          <span>Sudipta N. Sinha<sup>2</sup></span>
-        </div>
-
-        <div class="affiliations">
-          <span>
-            <sup>1</sup> University of Maryland, College Park
-          </span>
-
-          <span>
-            <sup>2</sup> Stack AV
-          </span>
-        </div>
-
-        <p class="hero-description">
-          From a single driving video, DrivENVS reconstructs
-          dynamic scenes and synthesizes coherent video
-          from new camera trajectories using
-          geometry-aware, few-step image diffusion.
+        <p class="section-description">
+          Explore camera translations. Source and target
+          cameras share the same orientation; only the
+          target position changes. Drag the scene to
+          inspect the geometry.
         </p>
 
-        <a href="#teaser" class="watch-link">
-          Watch intro video ↓
+        <p class="control-label">Translation direction</p>
+        <div class="control-row">
+          <button class="control-button"
+                  data-direction="left"
+                  type="button"
+                  aria-pressed="false">
+            <svg class="direction-icon"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+              <path d="M19 12H5m7-7-7 7 7 7"/>
+            </svg>
+            Left
+          </button>
+
+          <button class="control-button"
+                  data-direction="right"
+                  type="button"
+                  aria-pressed="false">
+            <svg class="direction-icon"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+              <path d="M5 12h14m-7-7 7 7-7 7"/>
+            </svg>
+            Right
+          </button>
+
+          <button class="control-button"
+                  data-direction="up"
+                  type="button"
+                  aria-pressed="true">
+            <svg class="direction-icon"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+              <path d="M12 19V5m-7 7 7-7 7 7"/>
+            </svg>
+            Up
+          </button>
+        </div>
+
+        <p class="control-label">Camera displacement</p>
+        <div class="control-row">
+          <button class="control-button"
+                  data-meters="1"
+                  type="button"
+                  aria-pressed="false">1 meter</button>
+
+          <button class="control-button"
+                  data-meters="2"
+                  type="button"
+                  aria-pressed="true">2 meters</button>
+        </div>
+      </div>
+
+      <div class="viewer">
+        <div id="three-scene">
+          <div class="viewer-fallback">
+            Loading interactive 3D scene…
+          </div>
+        </div>
+
+        <button class="reset" type="button" id="reset-view">
+  Reset view
+</button>
+
+        <div class="viewer-bottom">
+          <div class="legend">
+            <span><i></i>Source camera</span>
+            <span><i class="target"></i>Target camera</span>
+          </div>
+          <div class="viewer-hint">
+            Drag to rotate · Scroll to zoom
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+
+  <section class="section" id="results">
+    <div class="shell">
+      <h2 class="section-title">
+        Qualitative Results.
+      </h2>
+
+      <p class="section-description">
+        Explore synchronized input and synthesized
+        video pairs across left, right and upward
+        camera shifts, with 1-meter and 2-meter
+        displacements.
+      </p>
+
+      <div class="results-grid">
+
+        <a class="result-card"
+           href="waymo/index.html?distance=1m">
+          <div class="result-top">
+            <span>Driving scenes</span>
+            <svg class="result-arrow"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+              <path d="M7 17 17 7M8 7h9v9"/>
+            </svg>
+          </div>
+          <div>
+            <h3>Waymo</h3>
+            <p>
+              19 video pairs · Left / Right / Up · 1m / 2m
+            </p>
+          </div>
+        </a>
+
+        <a class="result-card"
+           href="nuscenes/index.html?distance=1m">
+          <div class="result-top">
+            <span>Driving scenes</span>
+            <svg class="result-arrow"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+              <path d="M7 17 17 7M8 7h9v9"/>
+            </svg>
+          </div>
+          <div>
+            <h3>nuScenes</h3>
+            <p>
+              19 video pairs · Left / Right / Up · 1m / 2m
+            </p>
+          </div>
         </a>
 
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- ==================================
-         TEASER VIDEO BELOW HERO
-    =================================== -->
+  <!-- EVALUATION -->
 
-    <section class="teaser-section"
-             id="teaser"
-             aria-label="DrivENVS teaser">
-
-      <div class="teaser-frame">
-
-        <div class="teaser-crop">
-
-          <video
-            controls
-            muted
-            playsinline
-            preload="metadata"
-            aria-label="DrivENVS teaser video">
-
-            <source
-              src="assets/4dnvs-teaser.mp4"
-              type="video/mp4">
-
-            Your browser does not support HTML5 video.
-
-          </video>
-
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ==================================
-         METHOD
-    =================================== -->
-
-    <section class="section" id="method">
-      <div class="shell">
-
+  <section class="section" id="evidence">
+    <div class="shell evidence-grid">
+      <div>
         <h2 class="section-title">
-          Not a new world.<br>
-          A new way to see it.
+          Quality without<br>
+          the video-DiT cost.
         </h2>
-
         <p class="section-description">
-          DrivENVS grounds each novel camera view in
-          motion-aware 4D geometry, retrieves relevant
-          observations from the source video, and refines
-          coarse renderings into temporally coherent output.
+          Our evaluation spans nuScenes, Waymo and
+          Argoverse 2, including translated and
+          side-facing target views.
         </p>
+      </div>
 
-        <div class="method-grid">
+      <div class="metric-list">
+        <div class="metric">
+          <strong>28.8%</strong>
+          <span>
+            Average FVD reduction against the related
+            image-diffusion baselines in the paper.
+          </span>
+        </div>
 
-          <div class="method-list">
+        <div class="metric">
+          <strong>20 GB</strong>
+          <span>
+            Approximate peak inference memory,
+            compared with 88 GB for NeoVerse
+            in the reported comparison.
+          </span>
+        </div>
 
-            <article class="method-item">
-              <span class="method-dot"></span>
-              <div>
-                <h3>Recover the dynamic scene</h3>
-                <p>
-                  Build a 4D representation with aggregated
-                  static geometry and time-indexed moving
-                  objects, then render a coarse view along
-                  the target trajectory.
-                </p>
-              </div>
-            </article>
-
-            <article class="method-item">
-              <span class="method-dot"></span>
-              <div>
-                <h3>Look back at relevant frames</h3>
-                <p>
-                  Select references using 3D co-visibility;
-                  combine top-1 joint attention,
-                  multi-reference cross-attention
-                  and relative camera-time encoding.
-                </p>
-              </div>
-            </article>
-
-            <article class="method-item">
-              <span class="method-dot"></span>
-              <div>
-                <h3>Refine, frame by frame</h3>
-                <p>
-                  Apply few-step image diffusion using
-                  prior generated frames to maintain temporal
-                  consistency over long sequences.
-                </p>
-              </div>
-            </article>
-
-          </div>
-
-          <figure class="method-image">
-            <img
-              src="assets/method.png"
-              alt="DrivENVS method overview"
-              loading="lazy">
-          </figure>
-
+        <div class="metric">
+          <strong>4 steps</strong>
+          <span>
+            Few-step rectified-flow refinement
+            for each generated frame.
+          </span>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- ==================================
-         INTERACTIVE CAMERA STUDY
-    =================================== -->
+</main>
 
-    <section class="section camera-section" id="camera">
-      <div class="shell camera-grid">
+<footer class="footer shell">
+  <a class="wordmark" href="#top">DrivENVS</a>
+  <a href="#top">Back to top ↑</a>
+</footer>
 
-        <div class="camera-copy">
+<!-- THREE.JS SIMULATION -->
 
-          <h2 class="section-title">
-            The camera moves.<br>
-            The scene persists.
-          </h2>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-          <p class="section-description">
-            Explore camera translations. Source and
-            target cameras have the same orientation;
-            only the target position changes.
-            Drag the scene to inspect the geometry.
-          </p>
+const host = document.getElementById("three-scene");
 
-          <p class="control-label">
-            Translation direction
-          </p>
+let renderer;
 
-          <div class="control-row"
-               role="group"
-               aria-label="Camera direction">
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+} catch (error) {
+  host.innerHTML =
+    '<div class="viewer-fallback">WebGL unavailable.</div>';
+  throw error;
+}
 
-            <button
-              class="control-button"
-              data-direction="left"
-              aria-pressed="false">← Left</button>
+renderer.setPixelRatio(
+  Math.min(window.devicePixelRatio || 1, 1.8)
+);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+host.replaceChildren(renderer.domElement);
 
-            <button
-              class="control-button"
-              data-direction="right"
-              aria-pressed="false">Right →</button>
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x09141e);
+scene.fog = new THREE.Fog(0x09141e, 25, 80);
 
-            <button
-              class="control-button"
-              data-direction="up"
-              aria-pressed="true">↑ Up</button>
+scene.add(
+  new THREE.HemisphereLight(0xd9ebff, 0x2d4050, 2.3)
+);
 
-          </div>
+const sunlight = new THREE.DirectionalLight(0xffffff, 2.4);
+sunlight.position.set(-5, 12, 7);
+scene.add(sunlight);
 
-          <p class="control-label">
-            Camera displacement
-          </p>
+const view = new THREE.PerspectiveCamera(43, 1, .1, 110);
+const initialEye = new THREE.Vector3(14, 10, 18);
+const initialCenter = new THREE.Vector3(0, 1.5, -5);
 
-          <div class="control-row"
-               role="group"
-               aria-label="Camera displacement">
+view.position.copy(initialEye);
 
-            <button
-              class="control-button"
-              data-meters="1"
-              aria-pressed="false">1 meter</button>
+const orbit = new OrbitControls(view, renderer.domElement);
+orbit.target.copy(initialCenter);
+orbit.enableDamping = true;
+orbit.dampingFactor = .075;
+orbit.enablePan = false;
+orbit.minDistance = 5;
+orbit.maxDistance = 45;
+orbit.maxPolarAngle = Math.PI / 2 - .03;
+orbit.update();
 
-            <button
-              class="control-button"
-              data-meters="2"
-              aria-pressed="true">2 meters</button>
+/* GEOMETRY HELPERS */
 
-          </div>
-        </div>
+function material(color, extra = {}) {
+  return new THREE.MeshStandardMaterial({
+    color,
+    roughness: .8,
+    metalness: .05,
+    ...extra
+  });
+}
 
-        <div class="viewer">
+function box(parent, w, h, d, color, x, y, z) {
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(w, h, d),
+    material(color)
+  );
+  mesh.position.set(x, y, z);
+  parent.add(mesh);
+  return mesh;
+}
 
-          <div id="three-scene">
-            <div class="viewer-fallback">
-              Loading interactive 3D scene…
-            </div>
-          </div>
+function line(points, color) {
+  const object = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(points),
+    new THREE.LineBasicMaterial({ color })
+  );
+  scene.add(object);
+  return object;
+}
 
-          <button class="reset"
-                  type="button"
-                  id="reset-view">
-            Reset view ↺
-          </button>
+/* ROAD */
 
-          <div class="viewer-bottom">
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(80, 100),
+  material(0x111e29)
+);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -.1;
+scene.add(ground);
 
-            <div class="legend">
-              <span><i></i>Source camera</span>
-              <span><i class="target"></i>Target camera</span>
-            </div>
+const road = new THREE.Mesh(
+  new THREE.PlaneGeometry(11.2, 62),
+  material(0x263540)
+);
+road.rotation.x = -Math.PI / 2;
+road.position.set(0, -.05, -10);
+scene.add(road);
 
-            <div class="viewer-hint">
-              Drag to rotate · Scroll to zoom
-            </div>
+for (const x of [-5.3, 5.3]) {
+  line([
+    new THREE.Vector3(x, .02, 16),
+    new THREE.Vector3(x, .02, -35)
+  ], 0x81919d);
+}
 
-          </div>
+for (let z = -34; z < 17; z += 4) {
+  for (const x of [-1.9, 1.9]) {
+    line([
+      new THREE.Vector3(x, .025, z),
+      new THREE.Vector3(x, .025, z + 1.8)
+    ], 0x9aa5ad);
+  }
+}
 
-        </div>
-      </div>
-    </section>
+for (const x of [-6.45, 6.45]) {
+  box(
+    scene, 1.65, .17, 62,
+    0x374653, x, .025, -10
+  );
+}
 
-    <!-- ==================================
-         QUALITATIVE RESULTS
-    =================================== -->
+/* BUILDINGS */
 
-    <section class="section" id="results">
-      <div class="shell">
+const buildingColors = [
+  0x3c505f, 0x334b5b, 0x435765, 0x2c4354
+];
 
-        <h2 class="section-title">
-          Qualitative Results.
-        </h2>
+const glassMaterial = material(0x7697ad, {
+  metalness: .3,
+  roughness: .25
+});
+const windowFrame = material(0x182a38);
 
-        <p class="section-description">
-          Explore synchronized input and synthesized
-          video pairs across left, right and upward
-          camera shifts, with 1-meter and 2-meter
-          displacements.
-        </p>
+function createBuilding(x, z, w, h, d, index) {
+  const group = new THREE.Group();
 
-        <div class="results-grid">
+  box(
+    group, w, h, d,
+    buildingColors[index % 4],
+    0, h / 2, 0
+  );
 
-          <a class="result-card"
-             href="waymo/index.html?distance=1m">
+  box(
+    group, w + .2, .2, d + .2,
+    0x1b2d3a, 0, h + .1, 0
+  );
 
-            <div class="result-top">
-              <span>Driving scenes</span>
-              <span class="result-arrow">↗</span>
-            </div>
+  box(
+    group, w + .1, .25, d + .1,
+    0x52606c, 0, .125, 0
+  );
 
-            <div>
-              <h3>Waymo</h3>
-              <p>
-                19 video pairs · Left / Right / Up · 1m / 2m
-              </p>
-            </div>
-
-          </a>
-
-          <a class="result-card"
-             href="nuscenes/index.html?distance=1m">
-
-            <div class="result-top">
-              <span>Driving scenes</span>
-              <span class="result-arrow">↗</span>
-            </div>
-
-            <div>
-              <h3>nuScenes</h3>
-              <p>
-                19 video pairs · Left / Right / Up · 1m / 2m
-              </p>
-            </div>
-
-          </a>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================================
-         EVALUATION
-    =================================== -->
-
-    <section class="section" id="evidence">
-      <div class="shell evidence-grid">
-
-        <div>
-          <h2 class="section-title">
-            Quality without<br>
-            the video-DiT cost.
-          </h2>
-
-          <p class="section-description">
-            Our evaluation spans nuScenes, Waymo
-            and Argoverse 2, including translated
-            and side-facing target views.
-          </p>
-        </div>
-
-        <div class="metric-list">
-
-          <div class="metric">
-            <strong>28.8%</strong>
-            <span>
-              Average FVD reduction against the
-              related image-diffusion baselines
-              in the paper.
-            </span>
-          </div>
-
-          <div class="metric">
-            <strong>20 GB</strong>
-            <span>
-              Approximate peak inference memory,
-              compared with 88 GB for NeoVerse
-              in the reported comparison.
-            </span>
-          </div>
-
-          <div class="metric">
-            <strong>4 steps</strong>
-            <span>
-              Few-step rectified-flow refinement
-              for each generated frame.
-            </span>
-          </div>
-
-        </div>
-
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="footer shell">
-    <a class="wordmark" href="#top">DrivENVS</a>
-    <a href="#top">Back to top ↑</a>
-  </footer>
-
-  <!-- =====================================
-       INTERACTIVE THREE.JS CAMERA MODEL
-  ===================================== -->
-
-  <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from
-      'three/addons/controls/OrbitControls.js';
-
-    const host = document.getElementById('three-scene');
-
-    let renderer;
-
-    try {
-      renderer = new THREE.WebGLRenderer({
-        antialias: true
-      });
-    } catch (err) {
-      host.innerHTML =
-        '<div class="viewer-fallback">' +
-        '3D is unavailable. Enable WebGL and reload.' +
-        '</div>';
-      throw err;
-    }
-
-    renderer.setPixelRatio(
-      Math.min(devicePixelRatio || 1, 1.8)
+  function addWindow(px, py, pz, side = false) {
+    const frame = new THREE.Mesh(
+      new THREE.BoxGeometry(.93, 1.18, .10),
+      windowFrame
     );
 
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    host.replaceChildren(renderer.domElement);
+    frame.position.set(px, py, pz);
 
-    const scene = new THREE.Scene();
+    if (side) {
+      frame.rotation.y = Math.PI / 2;
+    }
 
-    scene.background = new THREE.Color(0x09141e);
-    scene.fog = new THREE.Fog(0x09141e, 25, 80);
+    group.add(frame);
 
-    scene.add(
-      new THREE.HemisphereLight(
-        0xd9ebff, 0x2d4050, 2.3
+    const glass = new THREE.Mesh(
+      new THREE.BoxGeometry(.74, .98, .11),
+      glassMaterial
+    );
+
+    glass.position.copy(frame.position);
+
+    if (side) {
+      glass.rotation.y = Math.PI / 2;
+    } else {
+      glass.position.z += .02;
+    }
+
+    group.add(glass);
+  }
+
+  for (let y = 1.6; y < h - .5; y += 2) {
+    for (
+      let px = -w / 2 + 1;
+      px < w / 2 - .3;
+      px += 1.55
+    ) {
+      addWindow(px, y, d / 2 + .06);
+    }
+
+    for (
+      let pz = -d / 2 + 1;
+      pz < d / 2 - .3;
+      pz += 1.6
+    ) {
+      addWindow(
+        x < 0 ? w / 2 + .06 : -w / 2 - .06,
+        y,
+        pz,
+        true
+      );
+    }
+  }
+
+  box(
+    group, 1.25, 1.8, .12,
+    0x182a38, 0, .9, d / 2 + .08
+  );
+
+  box(
+    group, 1.9, .15, .85,
+    0x52606c, 0, 2.05, d / 2 + .35
+  );
+
+  group.position.set(x, 0, z);
+  scene.add(group);
+}
+
+[
+  [-9, -12, 5, 7, 6],
+  [-8, -23, 4, 10, 5],
+  [9, -9, 5, 6, 6],
+  [8, -20, 4, 9, 7],
+  [-8, 0, 3, 5, 4],
+  [9, 2, 4, 7, 4]
+].forEach((data, index) =>
+  createBuilding(...data, index)
+);
+
+/* CARS */
+
+const tireMaterial = material(0x111820);
+const rimMaterial = material(0x899ba8, {
+  metalness: .7,
+  roughness: .3
+});
+
+const headlightMaterial = material(0xdce5eb, {
+  emissive: 0xa4b9c8,
+  emissiveIntensity: .3
+});
+
+const taillightMaterial = material(0xa53243, {
+  emissive: 0x79202e,
+  emissiveIntensity: .3
+});
+
+function createCar(x, z, color) {
+  const group = new THREE.Group();
+
+  box(group, 1.8, .48, 3.45, color, 0, .63, 0);
+  box(group, 1.7, .18, 1, color, 0, .88, -1.14);
+  box(group, 1.48, .56, 1.65, 0x405766, 0, 1.12, .1);
+  box(group, 1.5, .1, 1.5, color, 0, 1.46, .1);
+
+  box(group, 1.32, .47, .06, 0x7697ad, 0, 1.12, -.75);
+  box(group, 1.32, .47, .06, 0x7697ad, 0, 1.12, .96);
+
+  for (const side of [-1, 1]) {
+    box(
+      group, .06, .4, 1.3,
+      0x7697ad,
+      side * .75, 1.16, .1
+    );
+
+    for (const wheelZ of [-1.05, 1.08]) {
+      for (const [radius, depth, mat] of [
+        [.34, .22, tireMaterial],
+        [.17, .235, rimMaterial]
+      ]) {
+        const wheel = new THREE.Mesh(
+          new THREE.CylinderGeometry(
+            radius, radius, depth, 20
+          ),
+          mat
+        );
+
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(side * .88, .35, wheelZ);
+        group.add(wheel);
+      }
+    }
+
+    const headlight = new THREE.Mesh(
+      new THREE.BoxGeometry(.35, .17, .07),
+      headlightMaterial
+    );
+    headlight.position.set(side * .58, .7, -1.76);
+    group.add(headlight);
+
+    const taillight = new THREE.Mesh(
+      new THREE.BoxGeometry(.35, .15, .07),
+      taillightMaterial
+    );
+    taillight.position.set(side * .58, .7, 1.76);
+    group.add(taillight);
+  }
+
+  box(
+    group, .95, .16, .06,
+    0x16222c, 0, .49, -1.77
+  );
+
+  group.position.set(x, 0, z);
+  scene.add(group);
+}
+
+createCar(-1.8, -12, 0x536b7b);
+createCar(2, -24, 0x607080);
+createCar(1.9, -2, 0x455e70);
+
+/* STREETLIGHTS */
+
+for (const z of [-23, -8, 7]) {
+  for (const side of [-1, 1]) {
+    const x = side * 6.7;
+    const offset = side === 1 ? -3 : 0;
+
+    const pole = new THREE.Mesh(
+      new THREE.CylinderGeometry(.065, .09, 5.3, 10),
+      material(0x718390, { metalness: .5 })
+    );
+
+    pole.position.set(x, 2.65, z + offset);
+    scene.add(pole);
+
+    box(
+      scene, 1.15, .1, .11,
+      0x718390,
+      x - side * .58, 5.15, z + offset
+    );
+
+    box(
+      scene, .48, .13, .3,
+      0xd7e0e2,
+      x - side * 1.1, 5.08, z + offset
+    );
+  }
+}
+
+/* CAMERA FRUSTUM AND TRAJECTORIES */
+
+function rod(a, b, radius, mat) {
+  const delta = new THREE.Vector3().subVectors(b, a);
+
+  const object = new THREE.Mesh(
+    new THREE.CylinderGeometry(
+      radius, radius, delta.length(), 10
+    ),
+    mat
+  );
+
+  object.position.copy(a).addScaledVector(delta, .5);
+
+  object.quaternion.setFromUnitVectors(
+    new THREE.Vector3(0, 1, 0),
+    delta.normalize()
+  );
+
+  return object;
+}
+
+function createCamera(color, bold = false) {
+  const group = new THREE.Group();
+
+  box(group, .72, .47, .65, 0x293b48, 0, 0, .1);
+  box(group, .47, .08, .45, 0x617684, 0, .28, .1);
+
+  const barrel = new THREE.Mesh(
+    new THREE.CylinderGeometry(.19, .19, .25, 24),
+    material(0x293b48)
+  );
+
+  barrel.rotation.x = Math.PI / 2;
+  barrel.position.z = -.34;
+  group.add(barrel);
+
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(.17, .035, 10, 32),
+    material(color, {
+      emissive: color,
+      emissiveIntensity: .2
+    })
+  );
+
+  ring.position.z = -.485;
+  group.add(ring);
+
+  const lens = new THREE.Mesh(
+    new THREE.CircleGeometry(.14, 32),
+    material(0x071724)
+  );
+
+  lens.position.z = -.488;
+  group.add(lens);
+
+  const corners = [
+    [-2.5, -1.48, -5],
+    [ 2.5, -1.48, -5],
+    [ 2.5,  1.48, -5],
+    [-2.5,  1.48, -5]
+  ].map(v => new THREE.Vector3(...v));
+
+  const edgeMaterial = new THREE.MeshBasicMaterial({
+    color,
+    transparent: true,
+    opacity: bold ? .98 : .75
+  });
+
+  const thickness = bold ? .055 : .03;
+
+  for (let i = 0; i < 4; i++) {
+    group.add(
+      rod(
+        new THREE.Vector3(),
+        corners[i],
+        thickness,
+        edgeMaterial
       )
     );
 
-    const sun = new THREE.DirectionalLight(
-      0xffffff, 2.4
+    group.add(
+      rod(
+        corners[i],
+        corners[(i + 1) % 4],
+        thickness * .8,
+        edgeMaterial
+      )
     );
+  }
 
-    sun.position.set(-5, 12, 7);
-    scene.add(sun);
+  return group;
+}
 
-    /* Observer camera */
+const sourcePose = new THREE.Vector3(0, 2.35, 5);
+const destination = new THREE.Vector3(0, 4.35, 5);
 
-    const view = new THREE.PerspectiveCamera(
-      43, 1, .1, 110
+const sourceCamera = createCamera(0x2e95ca, true);
+const targetCamera = createCamera(0x3067bd, false);
+
+sourceCamera.position.copy(sourcePose);
+targetCamera.position.copy(destination);
+scene.add(sourceCamera, targetCamera);
+
+function trajectory(x, y, color, solid = false) {
+  const group = new THREE.Group();
+  const mat = new THREE.MeshBasicMaterial({ color });
+
+  if (solid) {
+    group.add(
+      rod(
+        new THREE.Vector3(x, y, 12),
+        new THREE.Vector3(x, y, -32),
+        .07,
+        mat
+      )
     );
+  } else {
+    for (let z = 12; z > -32; z -= 1.45) {
+      group.add(
+        rod(
+          new THREE.Vector3(x, y, z),
+          new THREE.Vector3(
+            x, y, Math.max(z - .85, -32)
+          ),
+          .038,
+          mat
+        )
+      );
+    }
+  }
 
-    const eye = new THREE.Vector3(14, 10, 18);
-    const center = new THREE.Vector3(0, 1.5, -5);
+  scene.add(group);
+  return group;
+}
 
-    view.position.copy(eye);
+trajectory(sourcePose.x, sourcePose.y, 0x2e95ca, true);
 
-    const orbit = new OrbitControls(
-      view, renderer.domElement
-    );
+let targetPath = trajectory(
+  destination.x, destination.y, 0x3067bd, false
+);
 
-    orbit.target.copy(center);
-    orbit.enableDamping = true;
-    orbit.dampingFactor = .075;
-    orbit.enablePan = false;
-    orbit.minDistance = 5;
-    orbit.maxDistance = 45;
-    orbit.maxPolarAngle = Math.PI / 2 - .03;
+const connector = line(
+  [sourcePose.clone(), destination.clone()],
+  0x9eafc0
+);
+
+/* INTERACTION */
+
+let direction = "up";
+let meters = 2;
+
+function updateCamera() {
+  const dx =
+    direction === "left" ? -meters :
+    direction === "right" ? meters : 0;
+
+  const dy = direction === "up" ? meters : 0;
+
+  destination.set(
+    dx,
+    sourcePose.y + dy,
+    sourcePose.z
+  );
+
+  scene.remove(targetPath);
+
+  targetPath.traverse(object => {
+    if (object.isMesh) {
+      object.geometry.dispose();
+    }
+  });
+
+  targetPath = trajectory(
+    destination.x,
+    destination.y,
+    0x3067bd,
+    false
+  );
+
+  document.querySelectorAll("[data-direction]")
+    .forEach(button => {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.direction === direction)
+      );
+    });
+
+  document.querySelectorAll("[data-meters]")
+    .forEach(button => {
+      button.setAttribute(
+        "aria-pressed",
+        String(Number(button.dataset.meters) === meters)
+      );
+    });
+}
+
+document.querySelectorAll("[data-direction]")
+  .forEach(button => {
+    button.addEventListener("click", () => {
+      direction = button.dataset.direction;
+      updateCamera();
+    });
+  });
+
+document.querySelectorAll("[data-meters]")
+  .forEach(button => {
+    button.addEventListener("click", () => {
+      meters = Number(button.dataset.meters);
+      updateCamera();
+    });
+  });
+
+document.getElementById("reset-view")
+  .addEventListener("click", () => {
+    view.position.copy(initialEye);
+    orbit.target.copy(initialCenter);
     orbit.update();
+  });
 
-    /* Materials and mesh helpers */
+function resize() {
+  const width = host.clientWidth || 650;
+  const height = host.clientHeight || 510;
 
-    const mat = (c, extra = {}) =>
-      new THREE.MeshStandardMaterial({
-        color: c,
-        roughness: .8,
-        metalness: .05,
-        ...extra
-      });
+  renderer.setSize(width, height, false);
+  view.aspect = width / height;
+  view.updateProjectionMatrix();
+}
 
-    function block(
-      parent, w, h, d, color, x, y, z
-    ) {
-      const mesh = new THREE.Mesh(
-        new THREE.BoxGeometry(w, h, d),
-        mat(color)
-      );
+new ResizeObserver(resize).observe(host);
+resize();
 
-      mesh.position.set(x, y, z);
-      parent.add(mesh);
+function animate() {
+  requestAnimationFrame(animate);
 
-      return mesh;
-    }
+  targetCamera.position.lerp(destination, .10);
 
-    function stroke(points, color) {
-      const geometry =
-        new THREE.BufferGeometry().setFromPoints(
-          points
-        );
+  const positions =
+    connector.geometry.attributes.position;
 
-      const mesh = new THREE.Line(
-        geometry,
-        new THREE.LineBasicMaterial({ color })
-      );
+  positions.setXYZ(
+    0,
+    sourcePose.x,
+    sourcePose.y,
+    sourcePose.z
+  );
 
-      scene.add(mesh);
-      return mesh;
-    }
+  positions.setXYZ(
+    1,
+    targetCamera.position.x,
+    targetCamera.position.y,
+    targetCamera.position.z
+  );
 
-    /* Ground */
+  positions.needsUpdate = true;
 
-    const ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(80, 100),
-      mat(0x111e29)
-    );
+  orbit.update();
+  renderer.render(scene, view);
+}
 
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -.1;
-    scene.add(ground);
-
-    /* Road */
-
-    const road = new THREE.Mesh(
-      new THREE.PlaneGeometry(11.2, 62),
-      mat(0x263540)
-    );
-
-    road.rotation.x = -Math.PI / 2;
-    road.position.set(0, -.05, -10);
-    scene.add(road);
-
-    /* Lane markings */
-
-    for (const x of [-5.3, 5.3]) {
-      stroke([
-        new THREE.Vector3(x, .02, 16),
-        new THREE.Vector3(x, .02, -35)
-      ], 0x81919d);
-    }
-
-    for (let z = -34; z < 17; z += 4) {
-      for (const x of [-1.9, 1.9]) {
-        stroke([
-          new THREE.Vector3(x, .025, z),
-          new THREE.Vector3(x, .025, z + 1.8)
-        ], 0x9aa5ad);
-      }
-    }
-
-    /* Sidewalks */
-
-    for (const x of [-6.45, 6.45]) {
-      block(
-        scene, 1.65, .17, 62,
-        0x374653, x, .025, -10
-      );
-    }
-
-    /* Buildings */
-
-    const facadeColors = [
-      0x3c505f,
-      0x334b5b,
-      0x435765,
-      0x2c4354
-    ];
-
-    const glassMat = mat(0x7697ad, {
-      metalness: .3,
-      roughness: .25
-    });
-
-    const frameMat = mat(0x182a38);
-
-    function building(x, z, w, h, d, i) {
-      const group = new THREE.Group();
-
-      block(
-        group, w, h, d,
-        facadeColors[i % 4],
-        0, h / 2, 0
-      );
-
-      block(
-        group, w + .2, .2, d + .2,
-        0x1b2d3a,
-        0, h + .1, 0
-      );
-
-      block(
-        group, w + .1, .25, d + .1,
-        0x52606c,
-        0, .125, 0
-      );
-
-      function windowAt(
-        px, py, pz, side = false
-      ) {
-        const frame = new THREE.Mesh(
-          new THREE.BoxGeometry(
-            .93, 1.18, .10
-          ),
-          frameMat
-        );
-
-        frame.position.set(px, py, pz);
-
-        if (side) {
-          frame.rotation.y = Math.PI / 2;
-        }
-
-        group.add(frame);
-
-        const glass = new THREE.Mesh(
-          new THREE.BoxGeometry(
-            .74, .98, .11
-          ),
-          glassMat
-        );
-
-        glass.position.copy(frame.position);
-
-        if (side) {
-          glass.rotation.y = Math.PI / 2;
-        } else {
-          glass.position.z += .02;
-        }
-
-        group.add(glass);
-      }
-
-      for (let y = 1.6; y < h - .5; y += 2) {
-        for (
-          let px = -w / 2 + 1;
-          px < w / 2 - .3;
-          px += 1.55
-        ) {
-          windowAt(px, y, d / 2 + .06);
-        }
-
-        for (
-          let pz = -d / 2 + 1;
-          pz < d / 2 - .3;
-          pz += 1.6
-        ) {
-          windowAt(
-            x < 0 ? w / 2 + .06 : -w / 2 - .06,
-            y,
-            pz,
-            true
-          );
-        }
-      }
-
-      /* Building entrance */
-
-      block(
-        group, 1.25, 1.8, .12,
-        0x182a38,
-        0, .9, d / 2 + .08
-      );
-
-      block(
-        group, 1.9, .15, .85,
-        0x52606c,
-        0, 2.05, d / 2 + .35
-      );
-
-      group.position.set(x, 0, z);
-      scene.add(group);
-    }
-
-    [
-      [-9, -12, 5, 7, 6],
-      [-8, -23, 4, 10, 5],
-      [9, -9, 5, 6, 6],
-      [8, -20, 4, 9, 7],
-      [-8, 0, 3, 5, 4],
-      [9, 2, 4, 7, 4]
-    ].forEach((data, i) => {
-      building(...data, i);
-    });
-
-    /* Cars */
-
-    const tireMat = mat(0x111820);
-
-    const rimMat = mat(0x899ba8, {
-      metalness: .7,
-      roughness: .3
-    });
-
-    const lampMat = mat(0xdce5eb, {
-      emissive: 0xa4b9c8,
-      emissiveIntensity: .3
-    });
-
-    const tailMat = mat(0xa53243, {
-      emissive: 0x79202e,
-      emissiveIntensity: .3
-    });
-
-    function car(x, z, color) {
-      const group = new THREE.Group();
-
-      block(
-        group, 1.8, .48, 3.45,
-        color, 0, .63, 0
-      );
-
-      block(
-        group, 1.7, .18, 1,
-        color, 0, .88, -1.14
-      );
-
-      block(
-        group, 1.48, .56, 1.65,
-        0x405766, 0, 1.12, .1
-      );
-
-      block(
-        group, 1.5, .1, 1.5,
-        color, 0, 1.46, .1
-      );
-
-      /* Windshields */
-
-      block(
-        group, 1.32, .47, .06,
-        0x7697ad, 0, 1.12, -.75
-      );
-
-      block(
-        group, 1.32, .47, .06,
-        0x7697ad, 0, 1.12, .96
-      );
-
-      for (const side of [-1, 1]) {
-
-        block(
-          group, .06, .4, 1.3,
-          0x7697ad,
-          side * .75, 1.16, .1
-        );
-
-        /* Wheels */
-
-        for (const wz of [-1.05, 1.08]) {
-          for (
-            const [radius, depth, wheelMaterial]
-            of [
-              [.34, .22, tireMat],
-              [.17, .235, rimMat]
-            ]
-          ) {
-            const wheel = new THREE.Mesh(
-              new THREE.CylinderGeometry(
-                radius,
-                radius,
-                depth,
-                20
-              ),
-              wheelMaterial
-            );
-
-            wheel.rotation.z = Math.PI / 2;
-
-            wheel.position.set(
-              side * .88, .35, wz
-            );
-
-            group.add(wheel);
-          }
-        }
-
-        /* Headlights */
-
-        const headlight = new THREE.Mesh(
-          new THREE.BoxGeometry(
-            .35, .17, .07
-          ),
-          lampMat
-        );
-
-        headlight.position.set(
-          side * .58,
-          .7,
-          -1.76
-        );
-
-        group.add(headlight);
-
-        /* Taillights */
-
-        const taillight = new THREE.Mesh(
-          new THREE.BoxGeometry(
-            .35, .15, .07
-          ),
-          tailMat
-        );
-
-        taillight.position.set(
-          side * .58,
-          .7,
-          1.76
-        );
-
-        group.add(taillight);
-      }
-
-      block(
-        group, .95, .16, .06,
-        0x16222c,
-        0, .49, -1.77
-      );
-
-      group.position.set(x, 0, z);
-      scene.add(group);
-    }
-
-    car(-1.8, -12, 0x536b7b);
-    car(2, -24, 0x607080);
-    car(1.9, -2, 0x455e70);
-
-    /* Streetlights */
-
-    for (const z of [-23, -8, 7]) {
-      for (const side of [-1, 1]) {
-        const x = side * 6.7;
-        const shift = side === 1 ? -3 : 0;
-
-        const pole = new THREE.Mesh(
-          new THREE.CylinderGeometry(
-            .065, .09, 5.3, 10
-          ),
-          mat(0x718390, {
-            metalness: .5
-          })
-        );
-
-        pole.position.set(
-          x, 2.65, z + shift
-        );
-
-        scene.add(pole);
-
-        block(
-          scene, 1.15, .1, .11,
-          0x718390,
-          x - side * .58,
-          5.15,
-          z + shift
-        );
-
-        block(
-          scene, .48, .13, .3,
-          0xd7e0e2,
-          x - side * 1.1,
-          5.08,
-          z + shift
-        );
-      }
-    }
-
-    /* Thick 3D lines */
-
-    function rod(a, b, radius, material) {
-      const delta = new THREE.Vector3()
-        .subVectors(b, a);
-
-      const object = new THREE.Mesh(
-        new THREE.CylinderGeometry(
-          radius,
-          radius,
-          delta.length(),
-          10
-        ),
-        material
-      );
-
-      object.position.copy(a)
-        .addScaledVector(delta, .5);
-
-      object.quaternion.setFromUnitVectors(
-        new THREE.Vector3(0, 1, 0),
-        delta.normalize()
-      );
-
-      return object;
-    }
-
-    /* Detailed source and target cameras */
-
-    function cameraModel(color, bold) {
-      const group = new THREE.Group();
-
-      block(
-        group, .72, .47, .65,
-        0x293b48, 0, 0, .1
-      );
-
-      block(
-        group, .47, .08, .45,
-        0x617684, 0, .28, .1
-      );
-
-      const barrel = new THREE.Mesh(
-        new THREE.CylinderGeometry(
-          .19, .19, .25, 24
-        ),
-        mat(0x293b48)
-      );
-
-      barrel.rotation.x = Math.PI / 2;
-      barrel.position.z = -.34;
-      group.add(barrel);
-
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(
-          .17, .035, 10, 32
-        ),
-        mat(color, {
-          emissive: color,
-          emissiveIntensity: .2
-        })
-      );
-
-      ring.position.z = -.485;
-      group.add(ring);
-
-      const lens = new THREE.Mesh(
-        new THREE.CircleGeometry(
-          .14, 32
-        ),
-        mat(0x071724)
-      );
-
-      lens.position.z = -.488;
-      group.add(lens);
-
-      /* Camera frustum */
-
-      const corners = [
-        [-2.5, -1.48, -5],
-        [ 2.5, -1.48, -5],
-        [ 2.5,  1.48, -5],
-        [-2.5,  1.48, -5]
-      ].map(value =>
-        new THREE.Vector3(...value)
-      );
-
-      const edgeMaterial =
-        new THREE.MeshBasicMaterial({
-          color,
-          transparent: true,
-          opacity: bold ? .98 : .75
-        });
-
-      const thickness = bold ? .055 : .03;
-
-      for (let i = 0; i < 4; i++) {
-        group.add(
-          rod(
-            new THREE.Vector3(),
-            corners[i],
-            thickness,
-            edgeMaterial
-          )
-        );
-
-        group.add(
-          rod(
-            corners[i],
-            corners[(i + 1) % 4],
-            thickness * .8,
-            edgeMaterial
-          )
-        );
-      }
-
-      return group;
-    }
-
-    const sourcePose =
-      new THREE.Vector3(0, 2.35, 5);
-
-    const destination =
-      new THREE.Vector3(0, 4.35, 5);
-
-    const sourceCamera =
-      cameraModel(0x2e95ca, true);
-
-    const targetCamera =
-      cameraModel(0x3067bd, false);
-
-    sourceCamera.position.copy(sourcePose);
-    targetCamera.position.copy(destination);
-
-    scene.add(sourceCamera, targetCamera);
-
-    /* Camera trajectories */
-
-    function trajectory(
-      x, y, color, solid = false
-    ) {
-      const group = new THREE.Group();
-
-      const material =
-        new THREE.MeshBasicMaterial({
-          color
-        });
-
-      if (solid) {
-        group.add(
-          rod(
-            new THREE.Vector3(x, y, 12),
-            new THREE.Vector3(x, y, -32),
-            .07,
-            material
-          )
-        );
-      } else {
-        for (
-          let z = 12;
-          z > -32;
-          z -= 1.45
-        ) {
-          group.add(
-            rod(
-              new THREE.Vector3(x, y, z),
-              new THREE.Vector3(
-                x,
-                y,
-                Math.max(z - .85, -32)
-              ),
-              .038,
-              material
-            )
-          );
-        }
-      }
-
-      scene.add(group);
-      return group;
-    }
-
-    /* Source trajectory remains fixed */
-
-    trajectory(
-      sourcePose.x,
-      sourcePose.y,
-      0x2e95ca,
-      true
-    );
-
-    let targetPath = trajectory(
-      destination.x,
-      destination.y,
-      0x3067bd,
-      false
-    );
-
-    const connector = stroke(
-      [
-        sourcePose.clone(),
-        destination.clone()
-      ],
-      0x9eafc0
-    );
-
-    /* Interactive controls */
-
-    let direction = 'up';
-    let meters = 2;
-
-    function updateCamera() {
-      const x =
-        direction === 'left'
-          ? -meters
-          : direction === 'right'
-            ? meters
-            : 0;
-
-      const y = sourcePose.y +
-        (direction === 'up' ? meters : 0);
-
-      destination.set(
-        x, y, sourcePose.z
-      );
-
-      scene.remove(targetPath);
-
-      targetPath.traverse(object => {
-        if (object.isMesh) {
-          object.geometry.dispose();
-        }
-      });
-
-      targetPath = trajectory(
-        destination.x,
-        destination.y,
-        0x3067bd,
-        false
-      );
-
-      document.querySelectorAll(
-        '[data-direction]'
-      ).forEach(button => {
-        button.setAttribute(
-          'aria-pressed',
-          String(
-            button.dataset.direction === direction
-          )
-        );
-      });
-
-      document.querySelectorAll(
-        '[data-meters]'
-      ).forEach(button => {
-        button.setAttribute(
-          'aria-pressed',
-          String(
-            Number(button.dataset.meters) === meters
-          )
-        );
-      });
-    }
-
-    document.querySelectorAll(
-      '[data-direction]'
-    ).forEach(button => {
-      button.addEventListener('click', () => {
-        direction = button.dataset.direction;
-        updateCamera();
-      });
-    });
-
-    document.querySelectorAll(
-      '[data-meters]'
-    ).forEach(button => {
-      button.addEventListener('click', () => {
-        meters = Number(button.dataset.meters);
-        updateCamera();
-      });
-    });
-
-    document.getElementById('reset-view')
-      .addEventListener('click', () => {
-        view.position.copy(eye);
-        orbit.target.copy(center);
-        orbit.update();
-      });
-
-    /* Resize WebGL renderer */
-
-    function resize() {
-      const width = host.clientWidth || 650;
-      const height = host.clientHeight || 510;
-
-      renderer.setSize(
-        width, height, false
-      );
-
-      view.aspect = width / height;
-      view.updateProjectionMatrix();
-    }
-
-    new ResizeObserver(resize).observe(host);
-    resize();
-
-    /* Render and animate target camera */
-
-    function animate() {
-      requestAnimationFrame(animate);
-
-      targetCamera.position.lerp(
-        destination, .1
-      );
-
-      const positions =
-        connector.geometry.attributes.position;
-
-      positions.setXYZ(
-        0,
-        sourcePose.x,
-        sourcePose.y,
-        sourcePose.z
-      );
-
-      positions.setXYZ(
-        1,
-        targetCamera.position.x,
-        targetCamera.position.y,
-        targetCamera.position.z
-      );
-
-      positions.needsUpdate = true;
-
-      orbit.update();
-      renderer.render(scene, view);
-    }
-
-    animate();
-  </script>
+animate();
+</script>
 
 </body>
 </html>

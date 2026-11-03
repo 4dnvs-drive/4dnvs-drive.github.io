@@ -2,655 +2,719 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080f17">
-  <title>nuScenes Results — DrivENVS</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080f17">
+<title>nuScenes Results — DrivENVS</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      --bg: #080f17;
-      --surface: #0e1924;
-      --line: #2b3b4a;
-      --text: #edf4f8;
-      --muted: #9bafbf;
-      --accent: #2e95ca;
-      --brand: linear-gradient(90deg, #5de0e6, #004aad);
-    }
+<style>
+:root {
+  --bg: #080f17;
+  --surface: #0e1924;
+  --line: #2b3b4a;
+  --text: #edf4f8;
+  --muted: #9bafbf;
+  --accent: #2e95ca;
+  --brand: linear-gradient(90deg, #5de0e6, #004aad);
+}
 
-    * { box-sizing: border-box; }
+* { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: "DM Sans", Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "DM Sans", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
 
-    button {
-      font: inherit;
-      cursor: pointer;
-    }
+.container {
+  width: min(1200px, calc(100% - 64px));
+  margin: auto;
+}
 
-    .container {
-      width: min(1200px, calc(100% - 64px));
-      margin: auto;
-    }
+/* BRAND IDENTITY */
 
-    /* MINIMAL HEADER */
+.wordmark,
+.brand-inline {
+  display: inline-block;
+  font-family: Anton, Impact, sans-serif;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: .012em;
+  background: var(--brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
 
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      padding: 27px 0;
-      border-bottom: 1px solid var(--line);
-    }
+.wordmark {
+  font-size: 1.85rem;
+}
 
-    .wordmark {
-      font: 1.85rem/1 Anton, Impact, sans-serif;
-      background: var(--brand);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-    }
+.brand-inline {
+  font-size: 1.12em;
+  white-space: nowrap;
+}
 
-    .switch {
-      font-size: .85rem;
-      color: var(--muted);
-    }
+/* HEADER */
 
-    .switch:hover { color: var(--accent); }
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 27px 0;
+  border-bottom: 1px solid var(--line);
+}
 
-    /* TITLE */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--muted);
+}
 
-    .intro {
-      padding: 66px 0 42px;
-    }
+.switch:hover {
+  color: var(--accent);
+}
 
-    .intro h1 {
-      margin: 0 0 13px;
-      font-size: clamp(3.8rem, 8vw, 7rem);
-      font-weight: 500;
-      letter-spacing: -.07em;
-      line-height: 1;
-    }
+.switch-arrow {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
-    .intro p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 1.02rem;
-      line-height: 1.6;
-    }
+/* INTRO */
 
-    /* FILTERS */
+.intro {
+  padding: 66px 0 42px;
+}
 
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 24px;
-      padding: 20px 0;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-    }
+.intro h1 {
+  font-size: clamp(3.8rem, 8vw, 7rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.07em;
+  margin: 0 0 13px;
+}
 
-    .filter-group {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 7px;
-    }
+.intro p {
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.6;
+  margin: 0;
+}
 
-    .filter-name {
-      font-size: .85rem;
-      color: var(--muted);
-      margin-right: 10px;
-    }
+/* FILTERS — STYLE A */
 
-    .filter-btn {
-      background: transparent;
-      border: 1px solid #364b5d;
-      color: #bbccd8;
-      padding: 9px 15px;
-      font-size: .84rem;
-      transition: border-color .18s, background .18s;
-    }
+.filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 26px;
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
 
-    .filter-btn:hover {
-      border-color: var(--accent);
-    }
+.filter-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 
-    .filter-btn[aria-pressed="true"] {
-      background: #17364b;
-      border-color: var(--accent);
-      color: #e4f0f6;
-    }
+.filter-name {
+  color: #dce7ee;
+  font-size: .96rem;
+  font-weight: 700;
+  margin-right: 10px;
+}
 
-    .count {
-      font-size: .8rem;
-      color: var(--muted);
-      margin-left: auto;
-      white-space: nowrap;
-    }
+.filter-btn {
+  min-height: 40px;
+  padding: 9px 15px;
+  border-radius: 7px;
+  border: 1px solid #354856;
+  background: transparent;
+  color: #c2d0d9;
+  font-size: .91rem;
+  font-weight: 600;
+  line-height: 1.2;
+  transition:
+    background .18s,
+    border-color .18s,
+    color .18s;
+}
 
-    /* COMPARISON BLOCKS */
+.filter-btn:hover {
+  background: #132634;
+  border-color: #52758b;
+  color: #f1f8fc;
+}
 
-    .gallery {
-      padding: 38px 0 100px;
-      display: grid;
-      gap: 30px;
-    }
+.filter-btn[aria-pressed="true"] {
+  border-color: #4590bb;
+  background: #173044;
+  color: #e9f5fc;
+}
 
-    .pair {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      overflow: hidden;
-    }
+.filter-btn:focus-visible,
+a:focus-visible {
+  outline: 2px solid #91c6e1;
+  outline-offset: 3px;
+}
 
-    .pair-heading {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      flex-wrap: wrap;
-      gap: 10px 20px;
-      padding: 21px 24px;
-    }
+.count {
+  color: #bdcdd9;
+  font-size: .88rem;
+  font-weight: 600;
+  margin-left: auto;
+  white-space: nowrap;
+}
 
-    .pair-heading h2 {
-      font-size: clamp(1.1rem, 2vw, 1.4rem);
-      font-weight: 500;
-      line-height: 1.5;
-      margin: 0;
-      overflow-wrap: anywhere;
-    }
+/* VIDEO COMPARISONS */
 
-    .pair-heading span {
-      font-size: .8rem;
-      color: #91afc2;
-    }
+.gallery {
+  display: grid;
+  gap: 30px;
+  padding: 38px 0 100px;
+}
 
-    .videos {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: var(--line);
-    }
+.pair {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
 
-    .video-box {
-      min-width: 0;
-      background: #060b11;
-    }
+.pair-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  padding: 21px 24px;
+}
 
-    .video-label {
-      padding: 11px 16px;
-      font-size: .82rem;
-      color: #c8d5de;
-      background: #101d29;
-    }
+.pair-heading h2 {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
 
-    .video-label.output {
-      color: #6db0d1;
-    }
+.pair-heading span {
+  color: #aac1d0;
+  font-size: .9rem;
+  font-weight: 600;
+}
 
-    .video-box video {
-      display: block;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      object-fit: contain;
-      background: #03080e;
-    }
+.videos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+}
 
-    .video-error {
-      display: none;
-      margin: 0;
-      padding: 10px 16px;
-      color: #edb8b8;
-      font-size: .78rem;
-    }
+.video-box {
+  min-width: 0;
+  background: #060b11;
+}
 
-    .video-box.failed .video-error {
-      display: block;
-    }
+.video-label {
+  display: flex;
+  align-items: center;
+  min-height: 53px;
+  padding: 14px 18px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  background: #111d29;
+  color: #edf4f8;
+}
 
-    .footer {
-      padding: 30px 0 55px;
-      border-top: 1px solid var(--line);
-    }
+.video-label .brand-inline {
+  font-size: 1.4rem;
+}
 
-    .footer a {
-      color: var(--muted);
-      font-size: .86rem;
-    }
+/* CROP VIDEO TO 4:3 */
 
-    .footer a:hover {
-      color: var(--accent);
-    }
+.video-box video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center;
+  background: #03080e;
+}
 
-    /* RESPONSIVE */
+.video-error {
+  display: none;
+  margin: 0;
+  padding: 10px 16px;
+  color: #edb8b8;
+  font-size: .82rem;
+}
 
-    @media (max-width: 760px) {
-      .container {
-        width: calc(100% - 32px);
-      }
+.video-box.failed .video-error {
+  display: block;
+}
 
-      .intro {
-        padding: 48px 0 35px;
-      }
+/* FOOTER */
 
-      .filters {
-        gap: 16px;
-      }
+.footer {
+  padding: 30px 0 55px;
+  border-top: 1px solid var(--line);
+}
 
-      .filter-name {
-        width: 75px;
-      }
+.footer a {
+  color: #bdceda;
+  font-size: .95rem;
+  font-weight: 600;
+}
 
-      .count {
-        width: 100%;
-        margin: 0;
-      }
+.footer a:hover {
+  color: var(--accent);
+}
 
-      .gallery {
-        padding-top: 24px;
-        gap: 22px;
-      }
+/* MOBILE */
 
-      .videos {
-        grid-template-columns: 1fr;
-      }
+@media (max-width: 760px) {
+  .container {
+    width: calc(100% - 32px);
+  }
 
-      .pair-heading {
-        padding: 17px;
-      }
-    }
+  .intro {
+    padding: 48px 0 35px;
+  }
 
-    @media (prefers-reduced-motion: reduce) {
-      * { transition: none !important; }
-    }
-  </style>
+  .filters {
+    gap: 16px;
+  }
+
+  .filter-name {
+    width: 75px;
+  }
+
+  .count {
+    width: 100%;
+    margin: 0;
+  }
+
+  .gallery {
+    padding-top: 24px;
+    gap: 22px;
+  }
+
+  .videos {
+    grid-template-columns: 1fr;
+  }
+
+  .pair-heading {
+    padding: 17px;
+  }
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
+<div class="container">
 
-    <header class="topbar">
-      <a class="wordmark" href="../index.html">
-        DrivENVS
-      </a>
+  <header class="topbar">
+    <a href="../index.html" class="wordmark">
+      DrivENVS
+    </a>
 
-      <a class="switch" href="../waymo/index.html">
-        View Waymo ↗
-      </a>
-    </header>
+    <a href="../waymo/index.html" class="switch">
+      View Waymo
+      <svg class="switch-arrow"
+           viewBox="0 0 24 24"
+           aria-hidden="true">
+        <path d="M7 17 17 7M8 7h9v9"/>
+      </svg>
+    </a>
+  </header>
 
-    <main>
+  <main>
+    <section class="intro">
+      <h1>nuScenes</h1>
+      <p>Input and synthesized views, side by side.</p>
+    </section>
 
-      <section class="intro">
-        <h1>nuScenes</h1>
-        <p>Input and synthesized views, side by side.</p>
-      </section>
+    <div class="filters">
+      <div class="filter-group">
+        <span class="filter-name">Distance</span>
 
-      <div class="filters" aria-label="Video filters">
+        <button class="filter-btn"
+                type="button"
+                data-distance="1m">1 m</button>
 
-        <div class="filter-group">
-          <span class="filter-name">Distance</span>
-
-          <button class="filter-btn"
-                  data-distance="1m"
-                  type="button">1 m</button>
-
-          <button class="filter-btn"
-                  data-distance="2m"
-                  type="button">2 m</button>
-        </div>
-
-        <div class="filter-group">
-          <span class="filter-name">Direction</span>
-
-          <button class="filter-btn"
-                  data-direction="ALL"
-                  type="button">All</button>
-
-          <button class="filter-btn"
-                  data-direction="L"
-                  type="button">Left</button>
-
-          <button class="filter-btn"
-                  data-direction="R"
-                  type="button">Right</button>
-
-          <button class="filter-btn"
-                  data-direction="U"
-                  type="button">Up</button>
-        </div>
-
-        <span class="count" id="count"></span>
-
+        <button class="filter-btn"
+                type="button"
+                data-distance="2m">2 m</button>
       </div>
 
-      <section
-        class="gallery"
-        id="gallery"
-        aria-label="nuScenes video comparisons">
-      </section>
+      <div class="filter-group">
+        <span class="filter-name">Direction</span>
 
-    </main>
+        <button class="filter-btn"
+                type="button"
+                data-direction="ALL">All</button>
 
-    <footer class="footer">
-      <a href="../index.html">
-        ← Back to DrivENVS
-      </a>
-    </footer>
+        <button class="filter-btn"
+                type="button"
+                data-direction="L">Left</button>
 
-  </div>
+        <button class="filter-btn"
+                type="button"
+                data-direction="R">Right</button>
 
-  <script>
-    // Original nuScenes filenames are preserved.
-    // Format: direction + "2M_" + scene + "_input/output.mp4"
+        <button class="filter-btn"
+                type="button"
+                data-direction="U">Up</button>
+      </div>
 
-    const DATA = {
-      "1m": {
-        L: [
-          "scene-0090",
-          "scene-0111",
-          "scene-0266"
-        ],
-        R: [
-          "scene-0085",
-          "scene-0086",
-          "scene-0338"
-        ],
-        U: [
-          "scene-0140",
-          "scene-0266",
-          "scene-0551"
-        ]
-      },
+      <span class="count" id="count"></span>
+    </div>
 
-      "2m": {
-        L: [
-          "scene-0086",
-          "scene-0551",
-          "scene-0623"
-        ],
-        R: [
-          "scene-0085",
-          "scene-0314",
-          "scene-0833"
-        ],
-        U: [
-          "scene-0087",
-          "scene-0088",
-          "scene-0090",
-          "scene-0343"
-        ]
-      }
-    };
+    <section class="gallery"
+             id="gallery"
+             aria-label="nuScenes video comparisons">
+    </section>
+  </main>
 
-    const params = new URLSearchParams(location.search);
+  <footer class="footer">
+    <a href="../index.html">
+      ← Back to
+      <span class="brand-inline">DrivENVS</span>
+    </a>
+  </footer>
 
-    let distance = params.get("distance") === "2m"
-      ? "2m" : "1m";
+</div>
 
-    let direction =
-      ["ALL", "L", "R", "U"].includes(params.get("direction"))
-        ? params.get("direction")
-        : "ALL";
+<script>
+/* NUSCENES VIDEO DATA — 19 PAIRS */
 
-    const gallery = document.getElementById("gallery");
-    const count = document.getElementById("count");
+const DATA = {
+  "1m": {
+    L: [
+      "scene-0090",
+      "scene-0111",
+      "scene-0266"
+    ],
+    R: [
+      "scene-0085",
+      "scene-0086",
+      "scene-0338"
+    ],
+    U: [
+      "scene-0140",
+      "scene-0266",
+      "scene-0551"
+    ]
+  },
 
-    const directions = {
-      L: "Left",
-      R: "Right",
-      U: "Up"
-    };
+  "2m": {
+    L: [
+      "scene-0086",
+      "scene-0551",
+      "scene-0623"
+    ],
+    R: [
+      "scene-0085",
+      "scene-0314",
+      "scene-0833"
+    ],
+    U: [
+      "scene-0087",
+      "scene-0088",
+      "scene-0090",
+      "scene-0343"
+    ]
+  }
+};
 
-    // Load videos near the visible area only.
-    const observer = "IntersectionObserver" in window
-      ? new IntersectionObserver(entries => {
-          entries.forEach(entry => {
-            if (!entry.isIntersecting) return;
+const params = new URLSearchParams(location.search);
 
-            const video = entry.target;
-            video.src = video.dataset.src;
-            video.load();
-            observer.unobserve(video);
-          });
-        }, {
-          rootMargin: "450px 0px"
-        })
-      : null;
+let distance =
+  params.get("distance") === "2m" ? "2m" : "1m";
 
-    function synchronizePair(a, b) {
-      let updating = false;
-      let leading = a;
+let direction =
+  ["ALL", "L", "R", "U"].includes(params.get("direction"))
+    ? params.get("direction")
+    : "ALL";
 
-      for (const [video, other] of [[a, b], [b, a]]) {
+const gallery = document.getElementById("gallery");
+const count = document.getElementById("count");
 
-        video.addEventListener("play", () => {
-          leading = video;
-          if (updating) return;
+const directionNames = {
+  L: "Left",
+  R: "Right",
+  U: "Up"
+};
 
-          updating = true;
+/* LAZY VIDEO LOADING */
 
-          if (
-            other.readyState >= 1 &&
-            Math.abs(video.currentTime - other.currentTime) > .12
-          ) {
-            other.currentTime = video.currentTime;
-          }
+const observer = "IntersectionObserver" in window
+  ? new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
 
-          if (other.paused) {
-            other.play().catch(() => {});
-          }
-
-          updating = false;
-        });
-
-        video.addEventListener("pause", () => {
-          if (updating) return;
-
-          updating = true;
-
-          if (!other.paused) {
-            other.pause();
-          }
-
-          updating = false;
-        });
-
-        video.addEventListener("seeking", () => {
-          if (updating || other.readyState < 1) return;
-
-          if (
-            Math.abs(video.currentTime - other.currentTime) < .10
-          ) return;
-
-          updating = true;
-
-          try {
-            other.currentTime = video.currentTime;
-          } catch (error) {}
-
-          updating = false;
-        });
-
-        video.addEventListener("timeupdate", () => {
-          if (
-            video !== leading ||
-            video.paused ||
-            other.readyState < 1 ||
-            updating
-          ) return;
-
-          if (
-            Math.abs(video.currentTime - other.currentTime) > .25
-          ) {
-            updating = true;
-
-            try {
-              other.currentTime = video.currentTime;
-            } catch (error) {}
-
-            updating = false;
-          }
-        });
-
-        video.addEventListener("ended", () => {
-          other.pause();
-        });
-      }
-    }
-
-    function render() {
-      // Stop old videos when changing filters.
-      gallery.querySelectorAll("video").forEach(video => {
-        video.pause();
-        observer?.unobserve(video);
+        const video = entry.target;
+        video.src = video.dataset.src;
+        video.load();
+        observer.unobserve(video);
       });
+    }, {
+      rootMargin: "450px 0px"
+    })
+  : null;
 
-      gallery.replaceChildren();
+/* SYNCHRONIZED INPUT / OUTPUT */
 
-      const activeDirections = direction === "ALL"
-        ? ["L", "R", "U"]
-        : [direction];
+function synchronizePair(a, b) {
+  let updating = false;
+  let leader = a;
 
-      const clips = activeDirections.flatMap(dir =>
-        DATA[distance][dir].map(scene => ({
-          dir,
-          scene
-        }))
+  for (const [video, other] of [[a, b], [b, a]]) {
+    video.addEventListener("play", () => {
+      leader = video;
+      if (updating) return;
+
+      updating = true;
+
+      if (
+        other.readyState >= 1 &&
+        Math.abs(video.currentTime - other.currentTime) > .12
+      ) {
+        other.currentTime = video.currentTime;
+      }
+
+      if (other.paused) {
+        other.play().catch(() => {});
+      }
+
+      updating = false;
+    });
+
+    video.addEventListener("pause", () => {
+      if (updating) return;
+
+      updating = true;
+
+      if (!other.paused) {
+        other.pause();
+      }
+
+      updating = false;
+    });
+
+    video.addEventListener("seeking", () => {
+      if (updating || other.readyState < 1) return;
+
+      if (
+        Math.abs(video.currentTime - other.currentTime) < .10
+      ) return;
+
+      updating = true;
+
+      try {
+        other.currentTime = video.currentTime;
+      } catch (error) {}
+
+      updating = false;
+    });
+
+    video.addEventListener("timeupdate", () => {
+      if (
+        video !== leader ||
+        video.paused ||
+        other.readyState < 1 ||
+        updating
+      ) return;
+
+      if (
+        Math.abs(video.currentTime - other.currentTime) > .25
+      ) {
+        updating = true;
+
+        try {
+          other.currentTime = video.currentTime;
+        } catch (error) {}
+
+        updating = false;
+      }
+    });
+
+    video.addEventListener("ended", () => {
+      other.pause();
+    });
+  }
+}
+
+/* RENDER SCENE COMPARISONS */
+
+function render() {
+  gallery.querySelectorAll("video").forEach(video => {
+    video.pause();
+    observer?.unobserve(video);
+  });
+
+  gallery.replaceChildren();
+
+  const activeDirections =
+    direction === "ALL"
+      ? ["L", "R", "U"]
+      : [direction];
+
+  const clips = activeDirections.flatMap(dir =>
+    DATA[distance][dir].map(scene => ({
+      dir,
+      scene
+    }))
+  );
+
+  count.textContent = `${clips.length} comparisons`;
+
+  document.querySelectorAll("[data-distance]")
+    .forEach(button => {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.distance === distance)
       );
+    });
 
-      count.textContent = `${clips.length} comparisons`;
+  document.querySelectorAll("[data-direction]")
+    .forEach(button => {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.direction === direction)
+      );
+    });
 
-      document.querySelectorAll("[data-distance]")
-        .forEach(button => {
-          button.setAttribute(
-            "aria-pressed",
-            String(button.dataset.distance === distance)
-          );
-        });
+  clips.forEach((clip, index) => {
+    const article = document.createElement("article");
+    article.className = "pair";
 
-      document.querySelectorAll("[data-direction]")
-        .forEach(button => {
-          button.setAttribute(
-            "aria-pressed",
-            String(button.dataset.direction === direction)
-          );
-        });
+    const heading = document.createElement("div");
+    heading.className = "pair-heading";
 
-      clips.forEach((clip, index) => {
-        const article = document.createElement("article");
-        article.className = "pair";
+    const title = document.createElement("h2");
+    title.textContent = clip.scene;
 
-        const heading = document.createElement("div");
-        heading.className = "pair-heading";
+    const meta = document.createElement("span");
+    meta.textContent =
+      `${directionNames[clip.dir]} · ` +
+      `${distance.toUpperCase()} · ` +
+      `${String(index + 1).padStart(2, "0")}`;
 
-        const title = document.createElement("h2");
-        title.textContent = clip.scene;
+    heading.append(title, meta);
 
-        const meta = document.createElement("span");
-        meta.textContent =
-          `${directions[clip.dir]} · ${distance.toUpperCase()} ` +
-          `· ${String(index + 1).padStart(2, "0")}`;
+    const videos = document.createElement("div");
+    videos.className = "videos";
 
-        heading.append(title, meta);
+    const players = [];
 
-        const videos = document.createElement("div");
-        videos.className = "videos";
+    for (const [folder, label] of [
+      ["input", "Input"],
+      ["output", "DrivENVS"]
+    ]) {
+      const panel = document.createElement("div");
+      panel.className = "video-box";
 
-        const players = [];
+      const videoLabel = document.createElement("div");
+      videoLabel.className = "video-label";
 
-        for (const [folder, label] of [
-          ["input", "Input"],
-          ["output", "DrivENVS"]
-        ]) {
-          const panel = document.createElement("div");
-          panel.className = "video-box";
+      if (folder === "output") {
+        const brand = document.createElement("span");
+        brand.className = "brand-inline";
+        brand.textContent = "DrivENVS";
+        videoLabel.appendChild(brand);
+      } else {
+        videoLabel.textContent = label;
+      }
 
-          const videoLabel = document.createElement("div");
-          videoLabel.className =
-            "video-label" + (folder === "output" ? " output" : "");
+      const video = document.createElement("video");
+      video.controls = true;
+      video.muted = true;
+      video.playsInline = true;
+      video.preload = "none";
 
-          videoLabel.textContent = label;
+      const stem = `${clip.dir}2M_${clip.scene}`;
 
-          const video = document.createElement("video");
+      video.dataset.src =
+        `videos/${distance}/${clip.dir}_${folder}/` +
+        `${stem}_${folder}.mp4`;
 
-          video.controls = true;
-          video.muted = true;
-          video.playsInline = true;
-          video.preload = "none";
+      const error = document.createElement("p");
+      error.className = "video-error";
+      error.textContent =
+        "Video not found. Please check its path.";
 
-          const stem = `${clip.dir}2M_${clip.scene}`;
-
-          video.dataset.src =
-            `videos/${distance}/${clip.dir}_${folder}/` +
-            `${stem}_${folder}.mp4`;
-
-          const errorText = document.createElement("p");
-          errorText.className = "video-error";
-          errorText.textContent =
-            "Video not found. Please check its path.";
-
-          video.addEventListener("error", () => {
-            panel.classList.add("failed");
-          });
-
-          panel.append(videoLabel, video, errorText);
-          videos.append(panel);
-          players.push(video);
-
-          if (observer) {
-            observer.observe(video);
-          } else {
-            video.src = video.dataset.src;
-            video.load();
-          }
-        }
-
-        synchronizePair(players[0], players[1]);
-
-        article.append(heading, videos);
-        gallery.append(article);
+      video.addEventListener("error", () => {
+        panel.classList.add("failed");
       });
 
-      const url = new URL(location.href);
-      url.searchParams.set("distance", distance);
-      url.searchParams.set("direction", direction);
-      history.replaceState(null, "", url);
+      panel.append(videoLabel, video, error);
+      videos.append(panel);
+      players.push(video);
+
+      if (observer) {
+        observer.observe(video);
+      } else {
+        video.src = video.dataset.src;
+        video.load();
+      }
     }
 
-    document.querySelectorAll("[data-distance]")
-      .forEach(button => {
-        button.addEventListener("click", () => {
-          distance = button.dataset.distance;
-          render();
-        });
-      });
+    synchronizePair(players[0], players[1]);
 
-    document.querySelectorAll("[data-direction]")
-      .forEach(button => {
-        button.addEventListener("click", () => {
-          direction = button.dataset.direction;
-          render();
-        });
-      });
+    article.append(heading, videos);
+    gallery.append(article);
+  });
 
-    render();
-  </script>
+  const url = new URL(location.href);
+
+  url.searchParams.set("distance", distance);
+  url.searchParams.set("direction", direction);
+
+  history.replaceState(null, "", url);
+}
+
+/* FILTER BUTTONS */
+
+document.querySelectorAll("[data-distance]")
+  .forEach(button => {
+    button.addEventListener("click", () => {
+      distance = button.dataset.distance;
+      render();
+    });
+  });
+
+document.querySelectorAll("[data-direction]")
+  .forEach(button => {
+    button.addEventListener("click", () => {
+      direction = button.dataset.direction;
+      render();
+    });
+  });
+
+render();
+</script>
 </body>
 </html>
