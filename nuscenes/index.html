@@ -1,93 +1,482 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="description" content="Synchronized nuScenes input and output comparisons at 1-meter and 2-meter camera displacements." />
-    <title>nuScenes · 1M / 2M Video Comparison</title>
-    <link rel="stylesheet" href="../assets/comparison.css" />
-  </head>
-  <body data-dataset="nuscenes">
-    <header class="site-header">
-      <div class="header-inner">
-        <div class="topline">
-          <a class="back-link" href="../index.html">← All datasets</a>
-          <a class="dataset-switch" id="other-dataset-link" href="../waymo/index.html">Open Waymo →</a>
-        </div>
-        <div class="hero-row">
-          <div>
-            <p class="eyebrow">4D NVS · Input / Output</p>
-            <h1>nuScenes</h1>
-          </div>
-          <p class="intro">Compare synchronized input and generated output videos across 1-meter and 2-meter camera displacements. Use L, R, and U to jump between camera paths.</p>
-        </div>
-      </div>
-    </header>
-
-    <nav class="explorer-bar" aria-label="Comparison controls">
-      <div class="explorer-inner">
-        <div>
-          <span class="control-label">Camera displacement</span>
-          <div class="distance-tabs" role="tablist" aria-label="Camera displacement">
-            <button class="distance-tab" type="button" role="tab" data-distance="1m" aria-selected="true"><span class="distance-short">1M</span><span class="distance-name">1 meter</span></button>
-            <button class="distance-tab" type="button" role="tab" data-distance="2m" aria-selected="false"><span class="distance-short">2M</span><span class="distance-name">2 meters</span></button>
-          </div>
-        </div>
-        <div class="direction-nav" id="direction-nav" aria-label="Camera paths"></div>
-        <div class="result-count" id="result-count"></div>
-      </div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080f17">
+  <title>nuScenes / Research Archive — DrivENVS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#080f17; --surface:#0d1823; --line:#273849;
+      --text:#edf4f8; --muted:#96aaba;
+      --cyan:#5de0e6; --blue:#004aad;
+      --gradient:linear-gradient(90deg,#5de0e6,#004aad);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    video{display:block;width:100%;background:#02070d}
+    .wrap{width:min(1380px,calc(100% - 80px));margin:auto}
+    .mono{font-family:'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase}
+    .tiny{font-size:.67rem;color:var(--muted)}
+    .brand{background:var(--gradient);color:transparent;background-clip:text;-webkit-background-clip:text}
+    .logo{font:2rem/1.1 Anton,Impact,sans-serif;letter-spacing:.012em}
+    .header{min-height:82px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .header nav{display:flex;gap:26px;font-size:.75rem;color:#b1c3ce}
+    .header nav a:hover{color:var(--cyan)}
+    .intro{display:grid;grid-template-columns:1fr 1fr;gap:60px;padding:72px 0 66px;align-items:end}
+    .intro h1{font:clamp(5rem,10vw,10rem)/1 Anton,Impact,sans-serif;margin:16px 0 0}
+    .kicker{font-size:.68rem;color:var(--cyan)}
+    .intro-right{border-left:1px solid var(--line);padding-left:36px}
+    .intro-right p{font-size:clamp(.97rem,1.6vw,1.18rem);line-height:1.7;color:#bdccd6;max-width:500px;margin:0 0 22px}
+    .intro-meta{display:flex;gap:20px;flex-wrap:wrap;font-size:.65rem;color:#829bae}
+    .workspace{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#0a141e}
+    .workspace-grid{display:grid;grid-template-columns:minmax(220px,280px) minmax(0,1fr);gap:45px;padding:36px 0 86px;align-items:start}
+    .aside{position:sticky;top:18px;min-width:0}
+    .aside-heading{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:24px}
+    .label{font-size:.64rem;color:#91aabb}
+    .filter-block{margin-bottom:22px}
+    .filter-name{display:block;margin-bottom:11px;font-size:.63rem;color:#7892a5}
+    .filters{display:flex;flex-wrap:wrap;gap:5px}
+    .filter{padding:9px 12px;border:1px solid #344a5c;background:transparent;color:#c3d1da;font-size:.69rem}
+    .filter[aria-pressed="true"],.filter:hover{background:#123242;border-color:var(--cyan);color:#b7faff}
+    .index-head{padding:20px 0 13px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-size:.64rem;color:#95a8b6}
+    .take-list{display:flex;flex-direction:column;max-height:43vh;overflow:auto;scrollbar-color:#36526a transparent}
+    .take{display:grid;grid-template-columns:29px 1fr;gap:12px;text-align:left;background:transparent;border:0;border-left:2px solid transparent;border-bottom:1px solid #213342;color:#b8c9d4;padding:15px 10px;width:100%;min-width:0}
+    .take:hover{background:#142534}
+    .take[aria-current="true"]{border-left-color:var(--cyan);background:#122633;color:#fff}
+    .take-number{font-size:.65rem;color:var(--cyan)}
+    .take-desc{display:flex;flex-direction:column;gap:5px;min-width:0}
+    .take-desc b{font-size:.78rem;font-weight:500;overflow-wrap:anywhere}
+    .take-desc small{font:.6rem 'IBM Plex Mono',monospace;color:#7f9aad}
+    .stage{min-width:0}
+    .stage-head{display:flex;justify-content:space-between;gap:18px;align-items:start;margin-bottom:20px}
+    .stage-head h2{font-size:clamp(1.3rem,2.5vw,2.6rem);font-weight:500;letter-spacing:-.05em;line-height:1.17;overflow-wrap:anywhere;margin:8px 0 0}
+    .stage-info{text-align:right;flex:0 0 auto;color:#85a0b2;font-size:.65rem}
+    .projector{border:1px solid #355168;background:#030a11;position:relative}
+    .projector:before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:var(--gradient);z-index:2}
+    .screens{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#274052}
+    .screen{min-width:0;background:#040b12}
+    .screen-label{display:flex;justify-content:space-between;gap:8px;padding:12px 13px;background:#101d29;color:#acbecb;font-size:.61rem}
+    .screen-label.output{color:var(--cyan)}
+    .screen video{width:100%;aspect-ratio:16/9;object-fit:contain}
+    .screen-error{display:none;padding:10px 14px;color:#ffb1b1;font-size:.74rem}
+    .screen.failed .screen-error{display:block}
+    .transport{padding:18px 20px 20px;border-top:1px solid var(--line)}
+    .transport-buttons{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+    .transport button{background:transparent;border:1px solid #40586b;color:#d2e2ec;padding:10px 13px;font-size:.72rem}
+    .transport button:hover{border-color:var(--cyan);color:var(--cyan)}
+    .transport button.primary{background:#123c50;border-color:var(--cyan);color:#b9ffff;min-width:100px}
+    .transport .time{font-size:.67rem;color:#9cb3c4;margin-left:auto}
+    .scrub{width:100%;margin:17px 0 0;accent-color:#5de0e6;cursor:pointer}
+    .stage-caption{display:flex;justify-content:space-between;gap:15px;color:#7f98a9;font-size:.66rem;margin-top:14px;line-height:1.7}
+    .archive-remark{margin-top:52px;border-top:1px solid var(--line);padding-top:25px;display:grid;grid-template-columns:145px 1fr;gap:20px}
+    .archive-remark p{margin:0;color:#a2b8c7;line-height:1.75;font-size:.85rem;max-width:760px}
+    .footer{padding:32px 0 56px;display:flex;justify-content:space-between;gap:20px;align-items:center}
+    .footer small{color:#8ca4b5;font-size:.69rem}
+    @media(max-width:1050px){
+      .workspace-grid{grid-template-columns:230px minmax(0,1fr);gap:24px}
+      .screens{grid-template-columns:1fr}
+      .take-list{max-height:55vh}
+      .intro{gap:30px}
+    }
+    @media(max-width:760px){
+      .wrap{width:min(100% - 34px,1380px)}
+      .header{min-height:70px}
+      .header nav{gap:12px;font-size:.65rem}
+      .intro{grid-template-columns:1fr;gap:30px;padding:54px 0 45px}
+      .intro h1{font-size:clamp(5rem,17vw,9rem)}
+      .intro-right{border-left:0;border-top:1px solid var(--line);padding:19px 0 0}
+      .workspace-grid{grid-template-columns:1fr;padding-top:25px;gap:32px}
+      .aside{position:static}
+      .take-list{display:grid;grid-auto-columns:minmax(150px,190px);grid-auto-flow:column;overflow-x:auto;max-height:none}
+      .take{border-bottom:0}
+      .stage-head{flex-direction:column}
+      .stage-info{text-align:left}
+      .archive-remark{grid-template-columns:1fr;gap:10px}
+      .footer{flex-direction:column;align-items:flex-start}
+    }
+    @media(max-width:460px){
+      .intro h1{font-size:17vw}
+      .transport .time{margin-left:0;width:100%}
+      .stage-caption{flex-direction:column;gap:5px}
+    }
+  </style>
+</head>
+<body>
+  <header class="header wrap">
+    <a class="logo brand" href="../index.html">DrivENVS</a>
+    <nav>
+      <a href="../index.html#archive">← All experiments</a>
+      <a href="../waymo/index.html">Open Waymo ↗</a>
     </nav>
+  </header>
 
-    <main id="comparison-root"></main>
-    <footer class="page-footer">Input is shown on the left · Output is shown on the right · Paired playback stays synchronized</footer>
+  <main>
+    <section class="intro wrap">
+      <div>
+        <span class="mono kicker">DRIVENVS / EXPERIMENT ARCHIVE / 02</span>
+        <h1>nuScenes</h1>
+      </div>
+      <div class="intro-right">
+        <p>A focused archive of original driving footage and synthesized novel views. Select a camera shift, choose a take and inspect the two videos on a shared timeline.</p>
+        <div class="intro-meta mono">
+          <span>19 PAIRED TAKES</span>
+          <span>1 M / 2 M</span>
+          <span>LEFT · RIGHT · UP</span>
+        </div>
+      </div>
+    </section>
 
-    <script>
-      window.COMPARISON_DATA = {
-        defaultDistance: "1m",
-        distances: {
-          "1m": {
-            directions: {
-              L: [
-                { scene: "scene-0090", input: "videos/1m/L_input/L2M_scene-0090_input.mp4", output: "videos/1m/L_output/L2M_scene-0090_output.mp4" },
-                { scene: "scene-0111", input: "videos/1m/L_input/L2M_scene-0111_input.mp4", output: "videos/1m/L_output/L2M_scene-0111_output.mp4" },
-                { scene: "scene-0266", input: "videos/1m/L_input/L2M_scene-0266_input.mp4", output: "videos/1m/L_output/L2M_scene-0266_output.mp4" }
-              ],
-              R: [
-                { scene: "scene-0085", input: "videos/1m/R_input/R2M_scene-0085_input.mp4", output: "videos/1m/R_output/R2M_scene-0085_output.mp4" },
-                { scene: "scene-0086", input: "videos/1m/R_input/R2M_scene-0086_input.mp4", output: "videos/1m/R_output/R2M_scene-0086_output.mp4" },
-                { scene: "scene-0338", input: "videos/1m/R_input/R2M_scene-0338_input.mp4", output: "videos/1m/R_output/R2M_scene-0338_output.mp4" }
-              ],
-              U: [
-                { scene: "scene-0140", input: "videos/1m/U_input/U2M_scene-0140_input.mp4", output: "videos/1m/U_output/U2M_scene-0140_output.mp4" },
-                { scene: "scene-0266", input: "videos/1m/U_input/U2M_scene-0266_input.mp4", output: "videos/1m/U_output/U2M_scene-0266_output.mp4" },
-                { scene: "scene-0551", input: "videos/1m/U_input/U2M_scene-0551_input.mp4", output: "videos/1m/U_output/U2M_scene-0551_output.mp4" }
-              ]
-            }
-          },
-          "2m": {
-            directions: {
-              L: [
-                { scene: "scene-0086", input: "videos/2m/L_input/L2M_scene-0086_input.mp4", output: "videos/2m/L_output/L2M_scene-0086_output.mp4" },
-                { scene: "scene-0551", input: "videos/2m/L_input/L2M_scene-0551_input.mp4", output: "videos/2m/L_output/L2M_scene-0551_output.mp4" },
-                { scene: "scene-0623", input: "videos/2m/L_input/L2M_scene-0623_input.mp4", output: "videos/2m/L_output/L2M_scene-0623_output.mp4" }
-              ],
-              R: [
-                { scene: "scene-0085", input: "videos/2m/R_input/R2M_scene-0085_input.mp4", output: "videos/2m/R_output/R2M_scene-0085_output.mp4" },
-                { scene: "scene-0314", input: "videos/2m/R_input/R2M_scene-0314_input.mp4", output: "videos/2m/R_output/R2M_scene-0314_output.mp4" },
-                { scene: "scene-0833", input: "videos/2m/R_input/R2M_scene-0833_input.mp4", output: "videos/2m/R_output/R2M_scene-0833_output.mp4" }
-              ],
-              U: [
-                { scene: "scene-0087", input: "videos/2m/U_input/U2M_scene-0087_input.mp4", output: "videos/2m/U_output/U2M_scene-0087_output.mp4" },
-                { scene: "scene-0088", input: "videos/2m/U_input/U2M_scene-0088_input.mp4", output: "videos/2m/U_output/U2M_scene-0088_output.mp4" },
-                { scene: "scene-0090", input: "videos/2m/U_input/U2M_scene-0090_input.mp4", output: "videos/2m/U_output/U2M_scene-0090_output.mp4" },
-                { scene: "scene-0343", input: "videos/2m/U_input/U2M_scene-0343_input.mp4", output: "videos/2m/U_output/U2M_scene-0343_output.mp4" }
-              ]
-            }
-          }
-        }
-      };
-    </script>
-    <script src="../assets/comparison.js"></script>
-  </body>
+    <section class="workspace">
+      <div class="workspace-grid wrap">
+        <aside class="aside">
+          <div class="aside-heading">
+            <span class="mono label">VIEW CONFIGURATION</span>
+            <span class="mono label">01 / 02</span>
+          </div>
+          <div class="filter-block">
+            <span class="mono filter-name">CAMERA DISPLACEMENT</span>
+            <div class="filters">
+              <button class="filter mono" data-distance="1m">1 M</button>
+              <button class="filter mono" data-distance="2m">2 M</button>
+            </div>
+          </div>
+          <div class="filter-block">
+            <span class="mono filter-name">CAMERA DIRECTION</span>
+            <div class="filters">
+              <button class="filter mono" data-direction="ALL">All</button>
+              <button class="filter mono" data-direction="L">← Left</button>
+              <button class="filter mono" data-direction="R">Right →</button>
+              <button class="filter mono" data-direction="U">↑ Up</button>
+            </div>
+          </div>
+          <div class="index-head mono">
+            <span>TAKE INDEX</span>
+            <span id="list-count">00 TAKES</span>
+          </div>
+          <div id="take-list" class="take-list"></div>
+        </aside>
+
+        <div class="stage">
+          <div class="stage-head">
+            <div>
+              <span class="mono label" id="selected-direction">SELECTED TAKE</span>
+              <h2 id="selected-scene">Select a scene</h2>
+            </div>
+            <span class="mono stage-info" id="take-position">— / —</span>
+          </div>
+
+          <div class="projector">
+            <div class="screens">
+              <div class="screen" id="source-screen">
+                <div class="screen-label mono">
+                  <span>01 / SOURCE</span><span>INPUT VIDEO</span>
+                </div>
+                <video id="source-video" muted playsinline preload="metadata"></video>
+                <div class="screen-error">Source video not found. Check its path.</div>
+              </div>
+              <div class="screen" id="result-screen">
+                <div class="screen-label mono output">
+                  <span>02 / DRIVENVS</span><span>GENERATED VIEW</span>
+                </div>
+                <video id="result-video" muted playsinline preload="metadata"></video>
+                <div class="screen-error">Output video not found. Check its path.</div>
+              </div>
+            </div>
+
+            <div class="transport">
+              <div class="transport-buttons">
+                <button class="primary mono" id="play">▶ Play both</button>
+                <button class="mono" id="previous">← Previous</button>
+                <button class="mono" id="next">Next →</button>
+                <button class="mono" id="restart">↺ Restart</button>
+                <button class="mono" id="fullscreen">Fullscreen ↗</button>
+                <span class="mono time" id="clock">00:00 / --:--</span>
+              </div>
+              <input class="scrub" type="range" min="0" max="1000" value="0" id="scrub" aria-label="Shared video timeline">
+            </div>
+          </div>
+
+          <div class="stage-caption mono">
+            <span>SHARED PLAY / PAUSE / SEEK</span>
+            <span id="take-caption">TRANSLATED CAMERA TRAJECTORY</span>
+          </div>
+
+          <div class="archive-remark">
+            <span class="mono label">READING THE TAKE</span>
+            <p>Left is the original monocular video. Right is the DrivENVS output from the chosen translated camera. The comparison uses two synchronized pre-rendered files; it does not run the model in your browser.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wrap">
+    <a class="logo brand" href="../index.html">DrivENVS</a>
+    <small>Generative Novel View Synthesis from Monocular Driving Videos</small>
+  </footer>
+
+  <script>
+    // Paths preserved from your original nuScenes index.
+    const ARCHIVE = {
+      "1m": {
+        L: [
+          ["scene-0090","videos/1m/L_input/L2M_scene-0090_input.mp4","videos/1m/L_output/L2M_scene-0090_output.mp4"],
+          ["scene-0111","videos/1m/L_input/L2M_scene-0111_input.mp4","videos/1m/L_output/L2M_scene-0111_output.mp4"],
+          ["scene-0266","videos/1m/L_input/L2M_scene-0266_input.mp4","videos/1m/L_output/L2M_scene-0266_output.mp4"]
+        ],
+        R: [
+          ["scene-0085","videos/1m/R_input/R2M_scene-0085_input.mp4","videos/1m/R_output/R2M_scene-0085_output.mp4"],
+          ["scene-0086","videos/1m/R_input/R2M_scene-0086_input.mp4","videos/1m/R_output/R2M_scene-0086_output.mp4"],
+          ["scene-0338","videos/1m/R_input/R2M_scene-0338_input.mp4","videos/1m/R_output/R2M_scene-0338_output.mp4"]
+        ],
+        U: [
+          ["scene-0140","videos/1m/U_input/U2M_scene-0140_input.mp4","videos/1m/U_output/U2M_scene-0140_output.mp4"],
+          ["scene-0266","videos/1m/U_input/U2M_scene-0266_input.mp4","videos/1m/U_output/U2M_scene-0266_output.mp4"],
+          ["scene-0551","videos/1m/U_input/U2M_scene-0551_input.mp4","videos/1m/U_output/U2M_scene-0551_output.mp4"]
+        ]
+      },
+      "2m": {
+        L: [
+          ["scene-0086","videos/2m/L_input/L2M_scene-0086_input.mp4","videos/2m/L_output/L2M_scene-0086_output.mp4"],
+          ["scene-0551","videos/2m/L_input/L2M_scene-0551_input.mp4","videos/2m/L_output/L2M_scene-0551_output.mp4"],
+          ["scene-0623","videos/2m/L_input/L2M_scene-0623_input.mp4","videos/2m/L_output/L2M_scene-0623_output.mp4"]
+        ],
+        R: [
+          ["scene-0085","videos/2m/R_input/R2M_scene-0085_input.mp4","videos/2m/R_output/R2M_scene-0085_output.mp4"],
+          ["scene-0314","videos/2m/R_input/R2M_scene-0314_input.mp4","videos/2m/R_output/R2M_scene-0314_output.mp4"],
+          ["scene-0833","videos/2m/R_input/R2M_scene-0833_input.mp4","videos/2m/R_output/R2M_scene-0833_output.mp4"]
+        ],
+        U: [
+          ["scene-0087","videos/2m/U_input/U2M_scene-0087_input.mp4","videos/2m/U_output/U2M_scene-0087_output.mp4"],
+          ["scene-0088","videos/2m/U_input/U2M_scene-0088_input.mp4","videos/2m/U_output/U2M_scene-0088_output.mp4"],
+          ["scene-0090","videos/2m/U_input/U2M_scene-0090_input.mp4","videos/2m/U_output/U2M_scene-0090_output.mp4"],
+          ["scene-0343","videos/2m/U_input/U2M_scene-0343_input.mp4","videos/2m/U_output/U2M_scene-0343_output.mp4"]
+        ]
+      }
+    };
+
+    const params = new URLSearchParams(location.search);
+    let distance = params.get('distance') === '2m' ? '2m' : '1m';
+    let direction = ['ALL','L','R','U'].includes(params.get('direction'))
+      ? params.get('direction') : 'ALL';
+
+    let selected = 0;
+    let clips = [];
+    let scrubbing = false;
+
+    const el = id => document.getElementById(id);
+    const source = el('source-video');
+    const result = el('result-video');
+    const names = {L:'LEFT', R:'RIGHT', U:'UP'};
+
+    function clock(sec) {
+      if (!Number.isFinite(sec)) return '--:--';
+      sec = Math.floor(sec);
+      return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
+    }
+
+    function listClips() {
+      return (direction === 'ALL' ? ['L','R','U'] : [direction])
+        .flatMap(dir => ARCHIVE[distance][dir].map(
+          ([scene,input,output]) => ({scene,input,output,dir})
+        ));
+    }
+
+    function syncTime(time) {
+      for (const v of [source,result]) {
+        if (v.readyState < 1) continue;
+        const limit = Number.isFinite(v.duration) ? v.duration : time;
+        try {
+          v.currentTime = Math.max(0,Math.min(time,limit));
+        } catch(e) {}
+      }
+    }
+
+    function pauseBoth() {
+      source.pause();
+      result.pause();
+      el('play').textContent = '▶ Play both';
+    }
+
+    function updateClock() {
+      if (!scrubbing && Number.isFinite(source.duration) && source.duration > 0) {
+        el('scrub').value = String(Math.round(
+          1000 * source.currentTime / source.duration
+        ));
+      }
+      el('clock').textContent =
+        `${clock(source.currentTime)} / ${clock(source.duration)}`;
+    }
+
+    async function playBoth() {
+      if (!clips.length) return;
+      if (!source.paused || !result.paused) {
+        pauseBoth();
+        return;
+      }
+      if (Math.abs(source.currentTime - result.currentTime) > .12) {
+        syncTime(source.currentTime);
+      }
+      const outcomes = await Promise.allSettled([
+        source.play(), result.play()
+      ]);
+      if (outcomes.some(x => x.status === 'rejected')) {
+        pauseBoth();
+      } else {
+        el('play').textContent = 'Ⅱ Pause both';
+      }
+    }
+
+    function selectTake(index) {
+      pauseBoth();
+      selected = Math.max(0,Math.min(index,clips.length-1));
+      const clip = clips[selected];
+      if (!clip) return;
+
+      el('selected-scene').textContent = clip.scene;
+      el('selected-direction').textContent =
+        `${names[clip.dir]} CAMERA SHIFT / ${distance.toUpperCase()}`;
+      el('take-position').textContent =
+        `TAKE ${String(selected+1).padStart(2,'0')} / ${String(clips.length).padStart(2,'0')}`;
+      el('take-caption').textContent =
+        `${names[clip.dir]} / ${distance.toUpperCase()} / NUSCENES`;
+
+      source.closest('.screen').classList.remove('failed');
+      result.closest('.screen').classList.remove('failed');
+      source.src = clip.input;
+      result.src = clip.output;
+      source.load();
+      result.load();
+
+      el('scrub').value = '0';
+      el('clock').textContent = '00:00 / --:--';
+
+      document.querySelectorAll('.take').forEach((b,i) =>
+        b.setAttribute('aria-current',String(i===selected))
+      );
+    }
+
+    function renderList() {
+      pauseBoth();
+      clips = listClips();
+      selected = 0;
+
+      const list = el('take-list');
+      list.replaceChildren();
+      el('list-count').textContent = `${clips.length} TAKES`;
+
+      document.querySelectorAll('[data-distance]').forEach(b =>
+        b.setAttribute('aria-pressed',
+          String(b.dataset.distance === distance))
+      );
+      document.querySelectorAll('[data-direction]').forEach(b =>
+        b.setAttribute('aria-pressed',
+          String(b.dataset.direction === direction))
+      );
+
+      clips.forEach((clip,i) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'take';
+
+        const num = document.createElement('span');
+        num.className = 'mono take-number';
+        num.textContent = String(i+1).padStart(2,'0');
+
+        const block = document.createElement('span');
+        block.className = 'take-desc';
+
+        const name = document.createElement('b');
+        name.textContent = clip.scene;
+
+        const detail = document.createElement('small');
+        detail.textContent =
+          `${names[clip.dir]} / ${distance.toUpperCase()}`;
+
+        block.append(name,detail);
+        button.append(num,block);
+        button.addEventListener('click',()=>selectTake(i));
+        list.append(button);
+      });
+
+      selectTake(0);
+
+      const url = new URL(location.href);
+      url.searchParams.set('distance',distance);
+      url.searchParams.set('direction',direction);
+      history.replaceState(null,'',url);
+    }
+
+    document.querySelectorAll('[data-distance]').forEach(b =>
+      b.addEventListener('click',()=>{
+        distance = b.dataset.distance;
+        renderList();
+      })
+    );
+    document.querySelectorAll('[data-direction]').forEach(b =>
+      b.addEventListener('click',()=>{
+        direction = b.dataset.direction;
+        renderList();
+      })
+    );
+
+    el('play').addEventListener('click',playBoth);
+    el('previous').addEventListener('click',() =>
+      selectTake((selected-1+clips.length)%clips.length)
+    );
+    el('next').addEventListener('click',() =>
+      selectTake((selected+1)%clips.length)
+    );
+    el('restart').addEventListener('click',()=>{
+      pauseBoth();
+      syncTime(0);
+      updateClock();
+    });
+    el('fullscreen').addEventListener('click',()=>{
+      const target = document.querySelector('.projector');
+      if (document.fullscreenElement) document.exitFullscreen?.();
+      else target.requestFullscreen?.();
+    });
+
+    el('scrub').addEventListener('input',e=>{
+      scrubbing = true;
+      if (Number.isFinite(source.duration)) {
+        syncTime(source.duration * Number(e.target.value) / 1000);
+      }
+      updateClock();
+    });
+    el('scrub').addEventListener('change',()=>{
+      scrubbing = false;
+      updateClock();
+    });
+    source.addEventListener('timeupdate',()=>{
+      if (!source.paused && result.readyState >= 1 &&
+          Math.abs(source.currentTime-result.currentTime) > .16) {
+        try {
+          result.currentTime = Math.min(
+            source.currentTime,result.duration || source.currentTime
+          );
+        } catch(e) {}
+      }
+      updateClock();
+    });
+    source.addEventListener('loadedmetadata',updateClock);
+    source.addEventListener('ended',pauseBoth);
+
+    [source,result].forEach(v =>
+      v.addEventListener('error',() =>
+        v.closest('.screen').classList.add('failed')
+      )
+    );
+
+    renderList();
+  </script>
+</body>
 </html>
