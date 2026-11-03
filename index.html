@@ -682,6 +682,51 @@ img, video { display: block; width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
+
+
+/* ======================================
+   AUTHOR LINKS & HOVER EFFECT
+====================================== */
+
+.authors .author-link,
+.authors .author-hover {
+  display: inline-block;
+
+  color: inherit;
+  text-decoration: none;
+
+  border-bottom: 1px solid transparent;
+  padding-bottom: 3px;
+
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Real links */
+.authors .author-link {
+  cursor: pointer;
+}
+
+/* Samin: hover only, not clickable */
+.authors .author-hover {
+  cursor: default;
+}
+
+/* Same hover effect for all authors */
+.authors .author-link:hover,
+.authors .author-hover:hover {
+  color: #8bc5e2;
+  border-bottom-color: #2e95ca;
+}
+
+/* Keep affiliation superscripts blue */
+.authors .author-link sup,
+.authors .author-hover sup {
+  color: #7bb8d8;
+}
+
+
 </style>
 
 <script type="importmap">
@@ -721,12 +766,39 @@ img, video { display: block; width: 100%; }
         from Monocular Driving Videos
       </h2>
 
-      <div class="authors">
-        <span>Phuc Nguyen<sup>1,2</sup></span>
-        <span>Samin Khan<sup>2</sup></span>
-        <span>Ming C. Lin<sup>1</sup></span>
-        <span>Sudipta N. Sinha<sup>2</sup></span>
-      </div>
+      
+<div class="authors">
+
+  <a
+    class="author-link"
+    href="https://phucnda.github.io/"
+    target="_blank"
+    rel="noopener noreferrer">
+    Phuc Nguyen<sup>1,2</sup>
+  </a>
+
+  <span class="author-hover">
+    Samin Khan<sup>2</sup>
+  </span>
+
+  <a
+    class="author-link"
+    href="https://www.cs.umd.edu/~lin/"
+    target="_blank"
+    rel="noopener noreferrer">
+    Ming C. Lin<sup>1</sup>
+  </a>
+
+  <a
+    class="author-link"
+    href="https://snsinha.github.io/"
+    target="_blank"
+    rel="noopener noreferrer">
+    Sudipta N. Sinha<sup>2</sup>
+  </a>
+
+</div>
+
 
       <div class="affiliations">
         <span>
@@ -1038,10 +1110,25 @@ img, video { display: block; width: 100%; }
 
 </main>
 
+
 <footer class="footer shell">
   <a class="wordmark" href="#top">DrivENVS</a>
   <a href="#top">Back to top ↑</a>
 </footer>
+
+<!-- ACKNOWLEDGMENT -->
+<p class="shell" style="
+  text-align: center;
+  color: #9aafbf;
+  font-size: 0.88rem;
+  font-weight: 400;
+  line-height: 1.6;
+  margin: 0 auto;
+  padding: 0 0 32px;
+">
+  We thank Trinh Huynh for valuable help on the demo.
+</p>
+
 
 <!-- THREE.JS SIMULATION -->
 
